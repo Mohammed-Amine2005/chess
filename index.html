@@ -485,7 +485,6 @@ function initiate_game() {
     input_room = "";
     gameRef = database.ref('gameData');
     document.getElementById("room").value = "" ;
-    gameRef.off();
     play()
     start_new_game(1);
     checkname();
@@ -567,7 +566,7 @@ function validate_room() {
     room = document.getElementById("room").value;
     start_new_game(0);
     /*   document.getElementById("score").innerHTML = room;   */   
-    checkroom(room);
+    checkroomavailablity(room);
     sleep(100);
     sleep(100);
     sleep(100);
@@ -592,9 +591,13 @@ function start_new_game(stat) {
     if (stat === 0) {
         // disable room button
         document.getElementById("join room").disabled = true;
+        document.getElementById("join room").classList.remove("log_name");
+        document.getElementById("join room").classList.add("log_name_disabled");
     } else if (stat === 1) {
         // enable room button
         document.getElementById("join room").disabled = false;
+        document.getElementById("join room").classList.remove("log_name_disabled");
+        document.getElementById("join room").classList.add("log_name");
     }
 }
 
@@ -1656,7 +1659,7 @@ function clicking(pos) {  /*to work out*/
 
 function sendmove(pos) {
     gameRef.set({ pos : pos }); }
-function checkroom(room) { // joiner (can become hoster)
+function checkroomavailablity(room) { // joiner (can become hoster)
     gameRef= database.ref( "gameData".concat("/",room) );
     gameRef.set({ join : name }); 
     gameRef.on('value', (snapshot) => {
