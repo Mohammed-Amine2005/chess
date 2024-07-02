@@ -459,6 +459,7 @@
             } else {
                 time = FormatTime(inputMinute) + ":" + FormatTime(inputSecond) ;
             }
+            document.getElementById("Replay").innerHTML = time;
         }
         
         function StopClock() // stop timer (to use)
@@ -483,7 +484,7 @@
                     }else{
                         StopClock();
                         // alert("Time Up");
-
+                        timeup();
                         return;
                     }
                 }
@@ -554,6 +555,7 @@ var left_white_rookmoves = ["A1"] ;
 var right_black_rookmoves = ["H8"] ;
 var left_black_rookmoves = ["A8"] ; 
 var kingmoves = [0,0];
+var game_over = 0;
 var kingschecked=[0,0];
 var lastclick="";
 var T=["♜","♞","♝","♛","♚","♝","♞","♜","♟","♟","♟","♟","♟","♟","♟","♟","♙","♙","♙","♙","♙","♙","♙","♙","♖","♘","♗","♕","♔","♗","♘","♖"];
@@ -576,6 +578,7 @@ function initiate_game() {
     hoster = 0;
     offlinegame = 0;
     opponent_name = "";
+    game_over = 0;
     can_start = 1;
     lastsent = "";
     room = "";
@@ -662,6 +665,11 @@ function start_party() {
 function start_online_party() { // to figure out
     start_party();
     start_new_game(0);
+    if (offlinegame === 0) {
+        StopClock();
+        StartClock();
+    }
+
     //listening for moves
     gameRefplay.on('value', (snapshot) => {
     const data = snapshot.val();
@@ -688,9 +696,9 @@ function clicking(pos) {  /*to work out : feature to add : who starts as white *
     if (quit === 1) {
     quit = 0;
     document.getElementById("credit").innerHTML = "Developed By Mohamed Amine Hmida";}
-    if (offlinegame === 1) {
+    if (offlinegame === 1 && game_over === 0) {
     click(pos);
-    }else{
+    }else if ( game_over === 0) {
         // onlinegame
         if ( (hoster && !blackturn)  ||  (!hoster && blackturn)  ) {
             click(pos);
@@ -907,6 +915,7 @@ function play() {
 }
 
 function canigetchecked(fromwhere,towhere,turn) { 
+    console.log("from : ",fromwhere," to : ",towhere);
     let a = document.getElementById(fromwhere).innerHTML;
     let b = document.getElementById(towhere).innerHTML;
     document.getElementById(fromwhere).innerHTML = "";
@@ -962,23 +971,23 @@ function canmove(piece_pos) {
     allowed_pos = [];
     switch (slot(clicked)) {
         case "♙":
-            if (blackturn == 0 && clicked[1] == "2") {
+            if (blackturn == 0 && clicked[1] == "2") { 
                 if (slot(clicked[0]+"3") == "") {
-                    trycolor_dir(clicked[0]+"3");
+                    trycolor_dir(clicked[0]+"3");//go up
                     if (slot(clicked[0]+"4") == "") {
-                        trycolor_dir(clicked[0]+"4");
+                        trycolor_dir(clicked[0]+"4");//go up and up
                     }
                 }
             } else if (blackturn == 0) {
                 if (slot(clicked[0]+(parseInt(clicked[1])+1)) == "") {
-                    trycolor_dir(clicked[0]+(parseInt(clicked[1])+1));
+                    trycolor_dir(clicked[0]+(parseInt(clicked[1])+1));//go up
                 }
             }
-            if (slot(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])+1)) != "" && ["","out of bound","♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])+1))) ) {
-                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])+1));
+            if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])+1)))) {
+                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])+1));//go up and left
             }
-            if (slot(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])+1)) != "" && ["","out of bound","♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])+1))) ) {
-                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])+1));
+            if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])+1))) ) {
+                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])+1));//go up and right
             }
             if (allowed_pos.length != 0) {
                 return 1;
@@ -987,21 +996,22 @@ function canmove(piece_pos) {
         case "♟":
             if (blackturn == 1 && clicked[1] == "7") {
                 if (slot(clicked[0]+"6") == "") {
-                    trycolor_dir(clicked[0]+"6");
+                    trycolor_dir(clicked[0]+"6");//go down
                     if (slot(clicked[0]+"5") == "") {
-                        trycolor_dir(clicked[0]+"5");
+                        trycolor_dir(clicked[0]+"5");//go down and down
                     }
                 }
             } else if (blackturn == 1) {
                 if (slot(clicked[0]+(parseInt(clicked[1])-1)) == "") {
-                    trycolor_dir(clicked[0]+(parseInt(clicked[1])-1));
+                    trycolor_dir(clicked[0]+(parseInt(clicked[1])-1));//go down
                 }
             }
-            if (slot(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1)) != "" && ["","out of bound","♟","♜","♞","♝","♛","♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1))) ) {
-                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1));
+            if (["♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1))) ) {
+                console.log(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1))
+                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1));// go down and left
             }
-            if (slot(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])-1)) != "" && ["","out of bound","♟","♜","♞","♝","♛","♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])-1)))) {
-                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])-1));
+            if (["♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])-1)))) {
+                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])-1));// go down and right
             }
             if (allowed_pos.length != 0) {
                 return 1;
@@ -1059,7 +1069,7 @@ function canmove(piece_pos) {
                         }
                         if (slot(pos) == "") {
                             trycolor_dir(pos);
-                        } else {
+                        } else if (["♙","♖","♘","♗","♔","♕"].includes(slot(pos))) {
                             trycolor_hit(pos);
                             break;
                         }
@@ -1082,7 +1092,7 @@ function canmove(piece_pos) {
                         dx += x;
                         dy += y;
                     }
-                    if (slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)) == "♙") {
+                    if (["♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)))) {
                         trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
                     }
                 }
@@ -1158,7 +1168,7 @@ function canmove(piece_pos) {
                         }
                         if (slot(pos) == "") {
                             trycolor_dir(pos);
-                        } else {
+                        } else if (["♟","♜","♞","♝","♛","♚"].includes(slot(pos))) {
                             trycolor_hit(pos);
                             break;
                         }
@@ -1299,6 +1309,7 @@ function click(pos) {
     if (pos !== clicked) {
         lastclick = clicked;
         clicked = pos;
+
         if (!(allowed_pos.includes(clicked))) {
             if ((slot(clicked) === "♙" || slot(clicked) === "♖" || slot(clicked) === "♘" || slot(clicked) === "♗" || slot(clicked) === "♔" || slot(clicked) === "♕") && blackturn === 0) {
                 color("used");
@@ -1310,6 +1321,16 @@ function click(pos) {
                 color("used");
             }
             allowed_pos = [];
+            //king's check ground color
+        if (kingschecked[blackturn] === 1 && kingspos[blackturn] !== clicked) {
+            document.getElementById(kingspos[blackturn]).style.backgroundColor="#ff0000";  
+        }else {
+            normalcolor(kingspos[blackturn]);}
+        if ( kingspos[blackturn] ===  clicked) {
+            document.getElementById(clicked).style.backgroundColor = "#ffff7f"    
+        }
+
+            // test possible moves
             switch (slot(clicked)) {
                 case "♙":
                     if (blackturn === 0 && clicked[1] === "2") {
@@ -1565,16 +1586,14 @@ function click(pos) {
                     color("used");
                     return;
             }
-        } else {
+        
+        } else {//moving after checking
             // document.getElementById("Replay").style = "display:block";
             if (offlinegame === 1) {
             document.getElementById("Replay").disabled = false;
             document.getElementById("Replay").classList.remove("Replay_disabled");
             document.getElementById("Replay").classList.add("Replay");
             }
-
-            /*add remove*/
-
             if (slot(lastclick)=== "♔" || slot(lastclick)=== "♚"){
                 kingmoves[blackturn] += 1 ;
             }
@@ -1582,16 +1601,23 @@ function click(pos) {
                 kingsmoved[blackturn] = 1;
                 kingspos[blackturn] = clicked;
             }
-            let wpp = whitepieces.indexOf(slot(clicked));
-            let bpp = blackpieces.indexOf(slot(clicked));
+            //deleting piece
+            let wpp = whitepos.indexOf(clicked);
+            let bpp = blackpos.indexOf(clicked);
             if (slot(clicked) != "" && blackturn === 0 && bpp != -1 ) {
               blackpieces = blackpieces.slice(0,bpp) + blackpieces.slice(bpp+1);
               blackpos.splice(bpp,1);
+              console.log(blackpieces);
+              console.log(blackpos);
             }
             if (slot(clicked) != "" && blackturn === 1 && wpp != -1 ) {
               whitepieces = whitepieces.slice(0,wpp) + whitepieces.slice(wpp+1);
               whitepos.splice(wpp,1);
+              console.log(whitepieces);
+              console.log(whitepos);
             }
+            //
+
             document.getElementById(clicked).innerHTML = slot(lastclick);
             document.getElementById(lastclick).innerHTML = "";
             if (blackturn === 1) {
@@ -1613,22 +1639,22 @@ function click(pos) {
                     rooksmoved[blackturn][1] = 1;
                 }
             }
-            if (lastclick === "E1" && clicked === "C1" && slot("A1") === "♖" && slot(clicked) === "♔") {
+            if(lastclick === "E1" && clicked === "C1" && slot("A1") === "♖" && slot(clicked) === "♔") {
                 document.getElementById("A1").innerHTML = "";
-                document.getElementById("D1").innerHTML = "♖";;
-            } else if (lastclick === "E1" && clicked === "G1" && slot("H1") === "♖" && slot(clicked) === "♔") {
+                document.getElementById("D1").innerHTML = "♖";
+            }else if (lastclick === "E1" && clicked === "G1" && slot("H1") === "♖" && slot(clicked) === "♔") {
                 document.getElementById("H1").innerHTML = "";
-                document.getElementById("F1").innerHTML = "♖";;
-            } else if (lastclick === "E8" && clicked === "C8" && slot("A8") === "♜" && slot(clicked) === "♚") {
+                document.getElementById("F1").innerHTML = "♖";
+            }else if (lastclick === "E8" && clicked === "C8" && slot("A8") === "♜" && slot(clicked) === "♚") {
                 document.getElementById("A8").innerHTML = "";
-                document.getElementById("D8").innerHTML = "♜";;
-            } else if (lastclick === "E8" && clicked === "G8" && slot("H8") === "♜" && slot(clicked) === "♚") {
+                document.getElementById("D8").innerHTML = "♜";
+            }else if (lastclick === "E8" && clicked === "G8" && slot("H8") === "♜" && slot(clicked) === "♚") {
                 document.getElementById("H8").innerHTML = "";
-                document.getElementById("F8").innerHTML = "♜";;
+                document.getElementById("F8").innerHTML = "♜";
             }
             if (blackturn === 0) {
                 try {
-                    whitepos[whitepieces.indexOf(slot(clicked))] = clicked;
+                    whitepos[whitepos.indexOf(lastclick)] = clicked;
                 } catch (error) {
                     console.log("a problem while updating white position");
                     play();
@@ -1636,7 +1662,7 @@ function click(pos) {
                 }
             } else {
                 try {
-                    blackpos[blackpieces.indexOf(slot(clicked))] = clicked;
+                    blackpos[blackpos.indexOf(lastclick)] = clicked;
                 } catch (error) {
                     console.log("a problem while updating black position");
                     play();
@@ -1646,18 +1672,9 @@ function click(pos) {
 
             allowed_pos = [];
             color("used");
-            if ((clicked[1] === "1" || clicked[1] === "8") && (slot(clicked) === "♟" || slot(clicked) === "♙")) {
-                if (slot(clicked) === "♙") {
-                    document.getElementById(clicked).innerHTML = wht[scrollingw % 4];
-                    document.getElementById("title").innerHTML = "♕ Chess Game ♔";
-                    scrollingw = 0;
-                } else {
-                    document.getElementById(clicked).innerHTML = blk[scrollingb % 4];
-                    document.getElementById("title").innerHTML = "♕ Chess Game ♔";
-                    scrollingb = 0;
-                }
-            }
-            document.getElementById(kingspos[blackturn]).style.backgroundColor="#ffffff";
+            //before changing turns ;
+            changeturn();
+            /*
             if (blackturn === 0) {
                 blackturn = 1;
                 try {
@@ -1694,9 +1711,9 @@ function click(pos) {
                     } catch (error) {
                     console.log("a problem L296");
                 }
-            }
+            }*/
 
-        
+        /*
         if (kingschecked[blackturn] === 1 && !(kingspos[blackturn] === clicked)) {
             document.getElementById(kingspos[blackturn]).style.backgroundColor="#ff0000";
             if (blackturn === 0) {
@@ -1704,7 +1721,9 @@ function click(pos) {
             } else {
                 document.getElementById("score").style.backgroundColor="#ff0000";
             }
-        }}
+        }*/}
+
+
         const backup1 = allowed_pos;
         const backup2 = clicked;
         if (isgameover()) {
@@ -1712,18 +1731,10 @@ function click(pos) {
         }
         allowed_pos = backup1;
         clicked = backup2;
-        
-    }
-        if (amichecked(blackturn)) {
-            if (!(slot(pos)==="♔"||slot(pos)==="♚")) {
-                document.getElementById(kingspos[blackturn]).style.backgroundColor="#ff0000";  }
-                document.getElementById("score").style.backgroundColor="#ff0000";
-                kingschecked[blackturn] = 1;
-            } else {
-                normalcolor(kingspos);
-                kingschecked[blackturn] = 0;
-            }
 
+
+        }
+        
 }
 
 function addpiece(pos, piece) {
@@ -1758,7 +1769,7 @@ function slot(pos) {
   if (pos[0]>="A" && pos[0]<="H" && pos[1]>="1" && pos[1]<="8") {
     return document.getElementById(pos).innerHTML  
   }
-  return "out of bound"   
+  return "out of bound";   
 }
 
 function color(st) {
@@ -1845,10 +1856,31 @@ function endgame() {
     if (!kingschecked[blackturn]) {
         document.getElementById("score").innerHTML = "Stalemate , Replay";
     } else if (blackturn === 0) {
-        document.getElementById("score").innerHTML = "black wins , Replay";
+    if (offlinegame === 0) {
+            // online game
+            if (!hoster) {
+                document.getElementById("score").innerHTML = "♔ You Win The Game ! ♔";
+            }else{
+                document.getElementById("score").innerHTML = "♔".concat( opponent_name ," Wins The Game ! ♔");
+            }        
+        }else{
+            document.getElementById("score").innerHTML = "Black Wins The Game";
+        }
+        
     } else {
-        document.getElementById("score").innerHTML = "white wins , Replay";
+        if (offlinegame === 0) {
+            // online game
+            if (!hoster) {
+                document.getElementById("score").innerHTML = "♔ You Win The Game ! ♔";
+            }else{
+                document.getElementById("score").innerHTML = "♔".concat( opponent_name ," Wins The Game ! ♔");
+            }        
+        }else{
+            document.getElementById("score").innerHTML = "white wins , Replay";
+        }
+        
     }
+    StopClock();
 }
 
 function endgameifpossible() {
@@ -1863,6 +1895,69 @@ function sleep(miliseconds) {
    }
 }
 
+
+function changeturn() { // to update in online case
+    if (offlinegame === 0) {
+        StopClock();
+        StartClock();
+    }
+    if (blackturn === 0) {
+        blackturn = 1;
+        if (offlinegame === 0) {
+            // online game
+            if (!hoster) {
+                document.getElementById("score").innerHTML = "♔ Your Turn ♔";
+            }else{
+                document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
+            }        
+        }else{
+            document.getElementById("score").innerHTML = "♔ Black's Turn ♔";
+        }
+        document.getElementById("score").style.backgroundColor="#000000";
+        document.getElementById("score").style.color="#ffffff";
+        if (amichecked(1) === 1) {
+            document.getElementById(kingspos[1]).style.backgroundColor="#ff0000";
+            document.getElementById("score").style.backgroundColor="#ff0000";
+            kingschecked[1] = 1;
+        }else {
+            kingschecked[1] = 0;
+        }
+             
+    } else {
+        blackturn = 0;
+        if (offlinegame === 0) {
+            // online game
+            if (hoster) {
+                document.getElementById("score").innerHTML = "♔ Your Turn ♔";
+            }else{
+                document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
+            }
+        }else{
+            document.getElementById("score").innerHTML = "♔ White's Turn ♔";
+        }
+        document.getElementById("score").style.backgroundColor="#ffffff";
+        document.getElementById("score").style.color="#000000";
+        if (amichecked(0) === 1) {
+            document.getElementById(kingspos[0]).style.backgroundColor="#ff0000";
+            document.getElementById("score").style.backgroundColor="#ff0000"
+            kingschecked[0] = 1;
+        } else {
+            kingschecked[0] = 0;
+        }
+    }
+    
+}
+
+function timeup() {
+    StopClock();
+    endgame();
+    if (blackturn === 0) {
+    document.getElementById("score").innerHTML = "Time Up , You Lost (quit)";
+}else {
+    document.getElementById("score").innerHTML = "Time Up , You Won (quit)";
+}
+game_over = 1;
+}
 
 // End of game
 
