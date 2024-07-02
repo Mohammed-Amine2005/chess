@@ -561,7 +561,7 @@ function checkroom() {
 
 function checkname() {
     input_name = document.getElementById("username").value;
-    if ( input_name.includes("  ") || input_name==="" || input_name===" " || input_name===name ) {
+    if ( input_name.includes("  ") || input_name==="" || input_name===" " || input_name===name || input_name.length < 3 ) {
         document.getElementById("log").disabled = true;
         document.getElementById("log").classList.remove("log_name");
         document.getElementById("log").classList.add("log_name_disabled");
@@ -581,28 +581,59 @@ function validate_room() {
     room = document.getElementById("room").value;
     start_new_game(0);
     /*   document.getElementById("score").innerHTML = room;   */   
+    document.getElementById("score").innerHTML = "checking room status...";
     checkroomavailablity(room);
-    sleep(50);
-    sleep(50);
-    sleep(50);
-    sleep(50);
-    sleep(50);
-    sleep(50);
-    sleep(50);
-    sleep(50);
-    sleep(50);
-    sleep(50);
-    if (room !== "" && opponent_name !== "") {
-        // joining
-        document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
-    } else if (room !== "" && opponent_name === "" ) {
-        // hosting
+}
+
+function checkroomavailablity(room) { // joiner (can become hoster)
+    gameRef= database.ref( "gameData".concat("/",room) );
+    gameRef.set({ join : name }); 
+    setTimeout(() => { 
+        if (room !== "" && opponent_name === "") {
+        //hosting
         document.getElementById("score").innerHTML = "Hosting the room...";
         checkforjoin();
-    }else {
-    //full
+        }
+     }, 700);
+    gameRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data.join !== name) {
+      console.log("Received answer:", data.join);
+      if (data.join === "no") {
+        // room full
+        console.log("room full");
+        initiate_game();/*
+        start_new_game(0);
+        document.getElementById("score").innerHTML = "Room is Full, Try Again";
+        sleep(1500);
+        document.getElementById("score").innerHTML = "Join a room to start";
+        start_new_game(1);*/
+      }else{
+        // joined
+        console.log("room is now full");
+        opponent_name = data.join ;
+        document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
     }
-}
+    }});}
+function checkforjoin() { // hoster
+    gameRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data.join) {
+      console.log("Received answer:", data.join);
+      if (data.join !== name && data.join !== "ok" && data.join !== "no") {
+        if (opponent_name === "") {
+            // accept player 2
+            console.log("accept player 2");
+            opponent_name = data.join ;
+            document.getElementById("score").innerHTML = opponent_name.concat(" ","is joining the room...");
+            gameRef.set({ join : name });
+            // start_game();
+        }else {
+            // refuse player 2
+            console.log("refuse player 2");
+            console.log(opponent_name);
+            gameRef.set({ join : "no" }); }
+      }}});}
 
 function start_new_game(stat) {
     if (stat === 0) {
@@ -1676,41 +1707,7 @@ function clicking(pos) {  /*to work out*/
 
 function sendmove(pos) {
     gameRef.set({ pos : pos }); }
-function checkroomavailablity(room) { // joiner (can become hoster)
-    gameRef= database.ref( "gameData".concat("/",room) );
-    gameRef.set({ join : name }); 
-    gameRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data.join !== name) {
-      console.log("Received answer:", data.join);
-      if (data.join === "no") {
-        // room full
-        initiate_game();
-        start_new_game(0);
-        document.getElementById("score").innerHTML = "Room is Full, Try Again";
-        sleep(1500);
-        document.getElementById("score").innerHTML = "Join a room to start";
-        start_new_game(1);
-      }else{
-        // joined
-        opponent_name = data.join ;}
-    }});}
-function checkforjoin() { // hoster
-    gameRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data.join) {
-      console.log("Received answer:", data.join);
-      if (data.join !== name && data.join !== "ok" && data.join !== "no") {
-        if (opponent_name === "") {
-            // accept player 2
-            opponent_name = data.join ;
-            gameRef.set({ join : name });
-            document.getElementById("score").innerHTML = opponent_name.concat(" ","is joining the room...");
-            // start_game();
-        }else {
-            // refuse player 2
-            gameRef.set({ join : "no" }); }
-      }}});}
+
 
 
 
