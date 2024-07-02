@@ -171,7 +171,7 @@
         @media (aspect-ratio > 400/580) {
             .replaynow{
                 margin-top: 5vh ;
-                margin-bottom:10vh ;}
+                margin-bottom:7vh ;}
             .replaynow123{
                 margin-top: 0px ;
                 margin-bottom:0px ;}
@@ -1858,7 +1858,7 @@ function endgame() {
     } else if (blackturn === 0) {
     if (offlinegame === 0) {
             // online game
-            if (!hoster) {
+            if (hoster === !blackturn) {
                 document.getElementById("score").innerHTML = "♔ You Win The Game ! ♔";
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," Wins The Game ! ♔");
@@ -1870,7 +1870,7 @@ function endgame() {
     } else {
         if (offlinegame === 0) {
             // online game
-            if (!hoster) {
+            if (!hoster === blackturn) {
                 document.getElementById("score").innerHTML = "♔ You Win The Game ! ♔";
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," Wins The Game ! ♔");
@@ -1895,7 +1895,6 @@ function sleep(miliseconds) {
    }
 }
 
-
 function changeturn() { // to update in online case
     if (offlinegame === 0) {
         StopClock();
@@ -1907,11 +1906,17 @@ function changeturn() { // to update in online case
             // online game
             if (!hoster) {
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
+                new Audio('./start.mp3').play()
+
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
+                new Audio('./end.mp3').play()
+
             }        
         }else{
             document.getElementById("score").innerHTML = "♔ Black's Turn ♔";
+            new Audio('./start.mp3').play()
+
         }
         document.getElementById("score").style.backgroundColor="#000000";
         document.getElementById("score").style.color="#ffffff";
@@ -1929,11 +1934,16 @@ function changeturn() { // to update in online case
             // online game
             if (hoster) {
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
+                new Audio('./start.mp3').play()
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
+                new Audio('./end.mp3').play()
+
             }
         }else{
             document.getElementById("score").innerHTML = "♔ White's Turn ♔";
+            new Audio('./start.mp3').play()
+
         }
         document.getElementById("score").style.backgroundColor="#ffffff";
         document.getElementById("score").style.color="#000000";
