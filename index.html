@@ -582,24 +582,26 @@ function validate_room() {
     start_new_game(0);
     /*   document.getElementById("score").innerHTML = room;   */   
     checkroomavailablity(room);
-    sleep(100);
-    sleep(100);
-    sleep(100);
-    sleep(100);
-    if (restarted === 0 && room !== "" && opponent_name !== "") {
+    sleep(50);
+    sleep(50);
+    sleep(50);
+    sleep(50);
+    sleep(50);
+    sleep(50);
+    sleep(50);
+    sleep(50);
+    sleep(50);
+    sleep(50);
+    if (room !== "" && opponent_name !== "") {
         // joining
         document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
-        checkforjoin();
-    } else if (restarted === 0 && room !== "" && opponent_name === "" ) {
+    } else if (room !== "" && opponent_name === "" ) {
         // hosting
         document.getElementById("score").innerHTML = "Hosting the room...";
         checkforjoin();
-    }else if ( restarted === 1) {
-        //full
-        restarted = 0;
-        document.getElementById("score").innerHTML = "Room is Full, Try Again";
-        sleep(1500);
-        document.getElementById("score").innerHTML = "Join a room to start";}
+    }else {
+    //full
+    }
 }
 
 function start_new_game(stat) {
@@ -1684,7 +1686,11 @@ function checkroomavailablity(room) { // joiner (can become hoster)
       if (data.join === "no") {
         // room full
         initiate_game();
-        restarted = 1;
+        start_new_game(0);
+        document.getElementById("score").innerHTML = "Room is Full, Try Again";
+        sleep(1500);
+        document.getElementById("score").innerHTML = "Join a room to start";
+        start_new_game(1);
       }else{
         // joined
         opponent_name = data.join ;}
