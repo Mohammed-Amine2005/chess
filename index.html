@@ -1694,7 +1694,7 @@ function checkforjoin() { // hoster
     const data = snapshot.val();
     if (data.join) {
       console.log("Received answer:", data.join);
-      if (data.join !== name) {
+      if (data.join !== name && data.join !== "ok" && data.join !== "no") {
         if (opponent_name === "") {
             // accept player 2
             opponent_name = data.join ;
