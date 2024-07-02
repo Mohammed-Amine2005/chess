@@ -128,7 +128,13 @@
           text-align: center;
           margin: auto;}
         .offline { 
-          margin: auto;}
+          margin: auto;
+        margin-bottom: 10px;}
+        .offline_disabled { 
+          margin: auto;
+        margin-bottom: 10px;
+        color: rgb(71, 71, 71);
+        background-color: rgba(129, 129, 129, 0.785);}
         .welcome {
           width: 100%;
           text-align: center; 
@@ -171,6 +177,8 @@
                 margin-top: 0px ;
                 margin-bottom:0px ;}
             .offline {
+                font-size: 5vh;}
+            .offline_disabled {
                 font-size: 5vh;}
             .title {
                 font-size: 5vh;}
@@ -230,7 +238,10 @@
                 margin-top: 0px ;
                 margin-bottom: 0px ;}
             .offline {
-                font-size: 7vw;
+               font-size: 7vw;
+                height: 12vw;}
+            .offline_disabled {
+               font-size: 7vw;
                 height: 12vw;}
             .title {
                 font-size: 8vw;}
@@ -265,21 +276,23 @@
                 text-align: center;
                 font-size: 6vw;
                 gap: 4vw ;
-                margin-top: calc( (100vh - 70vw) /10 );
-                margin-bottom: calc( (100vh - 70vw) /10);}
+                margin-top: calc( (100vh - 90vw) /10 );
+                margin-bottom: calc( (100vh - 90vw) /10);}
             .score {
-                position: absolute;
                 bottom: 6vh;
                 font-size: 8vw;}
             .credit {
-                position: absolute;
                 bottom: 10px;
                 font-size: 5vw;}
+            .bottom_bar {
+                position: absolute;
+                width: 100%;
+                bottom: 0px;}
             .grid-item {
                 font-size: 8vw; }
             .grid-container {
-                margin-top:calc( (100vh - 50vw) /50) ;
-            } }
+                margin-top:calc( (100vh - 50vw) /50) ;} 
+            }
     </style>
 </head>
 <body class = "cbody">
@@ -298,7 +311,10 @@
     </div>
 
     <div class="welcome" id="welcome" >Welcom to Chess Online</div>
-    <div class="welcome" id ="welcome2" ><button class="offline" id="offline" onclick="offline_game()">♜ 2-player ♝</button></div>
+    <div class="welcome" id ="welcome2" >
+        <button class="offline" id="offline" onclick="offline_game()">♜ 2-player ♝</button>
+        <button class="offline" id="stophost" onclick="stop_hosting()">♝ Stop Hosting ♞</button>
+    </div>
     <div class="grid-container" id="chessboard">
 
         <div class="grid-item-empty" id = "J9" > </div>
@@ -411,9 +427,10 @@
         <div class="grid-item-index-down" id = "H0" >H</div>
         <div class="grid-item-empty" id = "I0" > </div>
     
-    </div>
+    </div><div class="bottom_bar" >
         <div class="score" id="score" >white's Turn</div>
         <div class="credit" id="credit" >Developed By Mohamed Amine Hmida</div>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
     <script>
@@ -481,6 +498,7 @@ var input_room = "";
 initiate_game()
 function initiate_game() {
     quit = 0;
+    offlinegame = 0;
     opponent_name = "";
     room = "";
     input_room = "";
@@ -513,7 +531,13 @@ function initiate_game() {
     document.getElementById("score").innerHTML = "Join a room to start";
     document.getElementById("credit").innerHTML = "Developed By Mohamed Amine Hmida";
 
+    document.getElementById("stophost").disabled = true;
+    document.getElementById("stophost").classList.remove("offline");
+    document.getElementById("stophost").classList.add("offline_disabled");
 
+    document.getElementById("offline").disabled = false;
+    document.getElementById("offline").classList.remove("offline_disabled");
+    document.getElementById("offline").classList.add("offline");
 
 }
 
@@ -592,14 +616,16 @@ function validate_room() {
 function checkroomavailablity(room) { // joiner (can become hoster)
     gameRef = database.ref( "gameData".concat("/",room) );
     gameRefjoin = database.ref( "gameData".concat("/",room) );
-    gameRef.set({ join : name }); 
+    gameRef.set({ join : name });
     setTimeout(() => { 
         if (room !== "" && opponent_name === "") {
         //hosting
         document.getElementById("score").innerHTML = "Hosting the room...";
+        gameRef.off();
+        database.ref( "gameData".concat("/",room,"/join") ).remove();
         checkforjoin();
         }
-     }, 700);
+     }, 500);
     gameRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (data.join !== name) {
@@ -632,8 +658,8 @@ function checkforjoin() { // hoster
             // accept player 2
             console.log("accept player 2");
             opponent_name = data.join ;
+            gameRefjoin.set({ join : name });
             document.getElementById("score").innerHTML = opponent_name.concat(" ","is joining the room...");
-            gameRef.set({ join : name });
             // start_game();
         }else {
             // refuse player 2
