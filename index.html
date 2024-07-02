@@ -433,6 +433,7 @@ firebase.initializeApp(firebaseConfig);
 // End of online config
 // Start of game
 var gameRef = database.ref('gameData');
+var gameRefjoin = database.ref('gameData');
 var restarted = 0;
 var quit = 0;
 var opponent_name = "";
@@ -484,6 +485,9 @@ function initiate_game() {
     room = "";
     input_room = "";
     gameRef = database.ref('gameData');
+    gameRefjoin = database.ref('gameData');
+    gameRef.off();
+    gameRefjoin.off();
     document.getElementById("room").value = "" ;
     play()
     start_new_game(1);
@@ -586,7 +590,8 @@ function validate_room() {
 }
 
 function checkroomavailablity(room) { // joiner (can become hoster)
-    gameRef= database.ref( "gameData".concat("/",room) );
+    gameRef = database.ref( "gameData".concat("/",room) );
+    gameRefjoin = database.ref( "gameData".concat("/",room) );
     gameRef.set({ join : name }); 
     setTimeout(() => { 
         if (room !== "" && opponent_name === "") {
@@ -602,7 +607,8 @@ function checkroomavailablity(room) { // joiner (can become hoster)
       if (data.join === "no") {
         // room full
         console.log("room full");
-        initiate_game();/*
+        initiate_game();
+        /*
         start_new_game(0);
         document.getElementById("score").innerHTML = "Room is Full, Try Again";
         sleep(1500);
@@ -613,10 +619,11 @@ function checkroomavailablity(room) { // joiner (can become hoster)
         console.log("room is now full");
         opponent_name = data.join ;
         document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
+        gameRef.off()
     }
     }});}
 function checkforjoin() { // hoster
-    gameRef.on('value', (snapshot) => {
+    gameRefjoin.on('value', (snapshot) => {
     const data = snapshot.val();
     if (data.join) {
       console.log("Received answer:", data.join);
