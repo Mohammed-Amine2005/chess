@@ -588,7 +588,7 @@ function validate_room() {
     sleep(100);
     if (restarted === 0 && room !== "" && opponent_name !== "") {
         // joining
-        document.getElementById("score").innerHTML = "joining the room...";
+        document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
         checkforjoin();
     } else if (restarted === 0 && room !== "" && opponent_name === "" ) {
         // hosting
@@ -1679,7 +1679,6 @@ function checkroomavailablity(room) { // joiner (can become hoster)
     gameRef.set({ join : name }); 
     gameRef.on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data.join) {
     if (data.join !== name) {
       console.log("Received answer:", data.join);
       if (data.join === "no") {
@@ -1687,10 +1686,9 @@ function checkroomavailablity(room) { // joiner (can become hoster)
         initiate_game();
         restarted = 1;
       }else{
-        // joined (can become hosted)
-        opponent_name = data.join ;
-        document.getElementById("score").innerHTML = opponent_name.concat(" ","is joining the room...");
-      }}}});}
+        // joined
+        opponent_name = data.join ;}
+    }});}
 function checkforjoin() { // hoster
     gameRef.on('value', (snapshot) => {
     const data = snapshot.val();
@@ -1704,7 +1702,7 @@ function checkforjoin() { // hoster
             document.getElementById("score").innerHTML = opponent_name.concat(" ","is joining the room...");
             // start_game();
         }else {
-            // room full
+            // refuse player 2
             gameRef.set({ join : "no" }); }
       }}});}
 
