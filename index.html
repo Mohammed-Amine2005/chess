@@ -1689,6 +1689,7 @@ function checkroomavailablity(room) { // joiner (can become hoster)
       }else{
         // joined (can become hosted)
         opponent_name = data.join ;
+        document.getElementById("score").innerHTML = opponent_name.concat(" ","is joining the room...");
       }}}});}
 function checkforjoin() { // hoster
     gameRef.on('value', (snapshot) => {
@@ -1700,7 +1701,7 @@ function checkforjoin() { // hoster
             // accept player 2
             opponent_name = data.join ;
             gameRef.set({ join : name });
-            document.getElementById("score").innerHTML = name.concat(" ","is joining the room...");
+            document.getElementById("score").innerHTML = opponent_name.concat(" ","is joining the room...");
             // start_game();
         }else {
             // room full
