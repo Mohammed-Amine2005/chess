@@ -763,7 +763,7 @@ function validate_room() {
     checkroomavailablity(room);
 }
 
-function checkroomavailablity(room) { // joiner (can become hoster)
+function checkroomavailablity(room) { // joiner (can become hoster) (hoster config)
     gameRef = database.ref( "gameData".concat("/",room) );
     gameRefjoin = database.ref( "gameData".concat("/",room) );
     gameRefplay = database.ref( "gameData".concat("/",room) );
@@ -803,10 +803,9 @@ function checkroomavailablity(room) { // joiner (can become hoster)
         document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
         gameRef.off()
         //start game now
-        // !important!
-        setInterval(() => { 
+        new Audio('./join.mp3').play()
+        setTimeout(() => { 
             start_online_party() 
-            new Audio('./join.mp3').play()
         }, 2450);
     }
     }});}
@@ -838,9 +837,9 @@ function checkforjoin() { // hoster
             document.getElementById("score").innerHTML = opponent_name.concat(" "," joined the room");
             // start game now
             hoster = 1;
-            setInterval(() => { 
-            start_online_party() 
             new Audio('./join.mp3').play()
+            setTimeout(() => { 
+            start_online_party() 
         }, 2500);
         }else {
             // refuse player 2
@@ -2024,9 +2023,9 @@ game_over = 1;
 // End of game
 
 
-
-
-
+/*
+sound
+*/
 
 </script>
   </body>
