@@ -231,8 +231,8 @@
                 font-size: 6vh;}}
         @media (aspect-ratio < 400/580) {
             .replaynow{
-                margin-top: calc( (100vh - 50vw) /5 );
-                margin-bottom: calc( (100vh - 50vw) /5);}
+                margin-top: calc( (100vh - 50vw) /10 );
+                margin-bottom: calc( (100vh - 50vw) /10);}
             .replaynow123{
                 margin-top: 0px ;
                 margin-bottom: 0px ;}
@@ -429,6 +429,15 @@
         <div class="score" id="score" >white's Turn</div>
         <div class="credit" id="credit" >Developed By Mohamed Amine Hmida</div>
     </div>
+    
+    <audio id="clock-ticking" src="./clock-ticking.mp3"></audio>
+    <audio id="quit" src="./quit.mp3"></audio>
+    <audio id="start" src="./start.mp3"></audio>
+    <audio id="join" src="./join.mp3"></audio>
+    <audio id="move" src="./move.mp3"></audio>
+    <audio id="move-capture" src="./move-capture.mp3"></audio>
+    <audio id="move-check" src="./move-check.mp3"></audio>
+
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
     <script> // timer code
@@ -472,7 +481,9 @@
             if(inputSecond > 0){
                 inputSecond--;
                 if (inputSecond<10 && inputMinute === 0 && inputHour === 0){
-                    new Audio('./clock-ticking.mp3').play()
+                    //
+                    document.getElementById("clock-ticking").play();
+                    // new Audio('./clock-ticking.mp3').play()
                     document.getElementById("Replay").style.color = "#FF0000";
                 }
             }else{
@@ -641,8 +652,12 @@ function quitgame() {
         quit = 0;
         if (offlinegame === 0) {
         sendmove("quitting");
-        new Audio('./quit.mp3').play()
-        }
+        StopClock();
+        //
+        document.getElementById("quit").play();
+
+        // new Audio('./quit.mp3').play()
+        } 
         initiate_game();
     }
     
@@ -670,7 +685,9 @@ function start_party() {
     document.getElementById("replaynow").classList.remove("replaynow");
     document.getElementById("replaynow").classList.add("replaynow123");
     play()
-    new Audio('./start.mp3').play()
+    //
+    document.getElementById("start").play();
+    // new Audio('./start.mp3').play()
     if (offlinegame === 0) {
         document.getElementById("Replay").style.color = "#3B3EFF";}
 }
@@ -805,7 +822,9 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
         gameRef.off()
         //start game now
-        new Audio('./join.mp3').play()
+        //
+        document.getElementById("join").play();
+        // new Audio('./join.mp3').play()
         setTimeout(() => { 
             start_online_party() 
         }, 2450);
@@ -839,7 +858,9 @@ function checkforjoin() { // hoster
             document.getElementById("score").innerHTML = opponent_name.concat(" "," joined the room");
             // start game now
             hoster = 1;
-            new Audio('./join.mp3').play()
+            //
+            document.getElementById("join").play();
+            // new Audio('./join.mp3').play()
             setTimeout(() => { 
             start_online_party() 
         }, 2500);
@@ -1932,16 +1953,16 @@ function changeturn() { // to update in online case
             // online game
             if (!hoster) {
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
-                    // new Audio('./start.mp3').play()
+                    // new Audio('./start.mp3').play() (not concerned)
 
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
-                // new Audio('./end.mp3').play()
+                // new Audio('./end.mp3').play() ( not concerned)
 
             }        
         }else{
             document.getElementById("score").innerHTML = "♔ Black's Turn ♔";
-            // new Audio('./start.mp3').play()
+            // new Audio('./start.mp3').play() ( not concerned)
 
         }
         document.getElementById("score").style.backgroundColor="#000000";
@@ -1969,15 +1990,15 @@ function changeturn() { // to update in online case
             // online game
             if (hoster) {
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
-                // new Audio('./start.mp3').play()
+                // new Audio('./start.mp3').play() ( not concerned)
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
-                // new Audio('./end.mp3').play()
+                // new Audio('./end.mp3').play() ( not concerned)
 
             }
         }else{
             document.getElementById("score").innerHTML = "♔ White's Turn ♔";
-            // new Audio('./start.mp3').play()
+            // new Audio('./start.mp3').play() ( not concerned)
 
         }
         document.getElementById("score").style.backgroundColor="#ffffff";
@@ -2003,11 +2024,17 @@ function changeturn() { // to update in online case
 
 function playsound() {
     if (to_be_played === 1 /* move sound */) {
-        new Audio('./move.mp3').play()
+        //
+        document.getElementById("move").play();
+        // new Audio('./move.mp3').play()
     }else if (to_be_played === 2 /* capture sound */) {
-        new Audio('./move-capture.mp3').play()
+        //
+        document.getElementById("move-capture").play();
+        // new Audio('./move-capture.mp3').play()
     }else if (to_be_played = 3 /* check sound */) {
-        new Audio('./move-check.mp3').play()
+        //
+        document.getElementById("move-check").play();
+        // new Audio('./move-check.mp3').play()
     }
 to_be_played = 0;
 }
