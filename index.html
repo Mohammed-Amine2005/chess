@@ -429,14 +429,13 @@
         <div class="score" id="score" >white's Turn</div>
         <div class="credit" id="credit" >Developed By Mohamed Amine Hmida</div>
     </div>
-    
-    <audio id="clock-ticking" src="./clock-ticking.mp3"></audio>
-    <audio id="quit" src="./quit.mp3"></audio>
-    <audio id="start" src="./start.mp3"></audio>
-    <audio id="join" src="./join.mp3"></audio>
-    <audio id="move" src="./move.mp3"></audio>
-    <audio id="move-capture" src="./move-capture.mp3"></audio>
-    <audio id="move-check" src="./move-check.mp3"></audio>
+    <audio id="clock-ticking" src="./clock-ticking.mp3" preload="auto" ></audio>
+    <audio id="quitsound" src="./quit.mp3" preload="auto"></audio>
+    <audio id="start" src="./start.mp3" preload="auto"></audio>
+    <audio id="join" src="./join.mp3" preload="auto"></audio>
+    <audio id="move" src="./move.mp3" preload="auto"></audio>
+    <audio id="move-capture" src="./move-capture.mp3" preload="auto"></audio>
+    <audio id="move-check" src="./move-check.mp3" preload="auto"></audio>
 
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
@@ -452,8 +451,8 @@
             if (!timeron){
             timeron = true;
             inputHour = Number(0);
-            inputMinute = Number(1); // to set 5 mn
-            inputSecond = Number(0);
+            inputMinute = Number(0); // to set 5 mn
+            inputSecond = Number(20);
         /* use (   document.getElementById("inputMinute").value   ) in Number()  */
             updatetime();
             timerApp = setInterval(myClock, 1000);
@@ -645,24 +644,22 @@ function initiate_game() {
 }
 
 function quitgame() {
+    console.log(quit);
     if (quit === 0){
         quit = 1;
         document.getElementById("credit").innerHTML = "press again to quit";
+        alert(" ---     Are You Sure ?     --- \n --- Press Again To Quit --- ")
     } else {
-        quit = 0;
         if (offlinegame === 0) {
         sendmove("quitting");
+    }
         StopClock();
         //
-        document.getElementById("quit").play();
-
+        document.getElementById("quitsound").play(); 
         // new Audio('./quit.mp3').play()
-        } 
         initiate_game();
-    }
-    
-}
-
+        quit = 0;
+    }}
 function offline_game() {
     initiate_game();
     offlinegame = 1;
@@ -1354,6 +1351,7 @@ function click(pos) {
     if (pos !== clicked) {
         lastclick = clicked;
         clicked = pos;
+        
 
         if (!(allowed_pos.includes(clicked))) {
             if ((slot(clicked) === "♙" || slot(clicked) === "♖" || slot(clicked) === "♘" || slot(clicked) === "♗" || slot(clicked) === "♔" || slot(clicked) === "♕") && blackturn === 0) {
@@ -1367,7 +1365,9 @@ function click(pos) {
             }
             allowed_pos = [];
             //king's check ground color !important!
-
+            if (kingschecked[blackturn] && kingspos[blackturn] !== clicked) {
+                document.getElementById(kingspos[blackturn]).style.backgroundColor="#ff0000"
+            }
 
             // test possible moves
             switch (slot(clicked)) {
@@ -1767,7 +1767,8 @@ function click(pos) {
             } else {
                 document.getElementById("score").style.backgroundColor="#ff0000";
             }
-        }*/}
+        }*/
+       }
 
         playsound(to_be_played);
         const backup1 = allowed_pos;
@@ -2045,12 +2046,22 @@ function timeup() {
     gameRefplay.off();
     if (blackturn === 0 && hoster === 1 || blackturn === 1 && hoster === 0) {
     document.getElementById("score").innerHTML = "Time Up , You Lost (quit)";
+    document.getElementById("quit").disabled = true;
     sendmove("timeup");
+    setTimeout(() => {
+        quitgame();
+        document.getElementById("quit").disabled = false;
+    }, 3000);
 }else {
     StopClock();
     game_over = 1;
     gameRefplay.off();
     document.getElementById("score").innerHTML = "Time Up , You Won (quit)";
+    document.getElementById("quit").disabled = true;
+    setTimeout(() => {
+        quitgame();
+        document.getElementById("quit").disabled = false;
+    }, 3000);
 }
 }
 
