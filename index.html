@@ -2046,22 +2046,18 @@ function timeup() {
     gameRefplay.off();
     if (blackturn === 0 && hoster === 1 || blackturn === 1 && hoster === 0) {
     document.getElementById("score").innerHTML = "Time Up , You Lost (quit)";
+    document.getElementById("score").style.backgroundColor = "#FFAA00";
+    document.getElementById("score").style.color = "#000000";
     document.getElementById("quit").disabled = true;
     sendmove("timeup");
-    setTimeout(() => {
-        quitgame();
-        document.getElementById("quit").disabled = false;
-    }, 3000);
 }else {
     StopClock();
     game_over = 1;
     gameRefplay.off();
     document.getElementById("score").innerHTML = "Time Up , You Won (quit)";
+    document.getElementById("score").style.backgroundColor = "#00FF00";
+    document.getElementById("score").style.color = "#000000";
     document.getElementById("quit").disabled = true;
-    setTimeout(() => {
-        quitgame();
-        document.getElementById("quit").disabled = false;
-    }, 3000);
 }
 }
 
