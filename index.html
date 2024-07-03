@@ -481,7 +481,7 @@
                 inputSecond--;
                 if (inputSecond<10 && inputMinute === 0 && inputHour === 0){
                     //
-                    stop_all_sounds();
+                    //pause sound if possible (cange for all #1231)
                     document.getElementById("clock-ticking").play();
                     // new Audio('./clock-ticking.mp3').play()
                     document.getElementById("Replay").style.color = "#FF0000";
@@ -656,7 +656,7 @@ function quitgame() {
     }
         StopClock();
         //
-        stop_all_sounds();
+        //pause sound if possible (cange for all #1231)
         document.getElementById("quitsound").play(); 
         // new Audio('./quit.mp3').play()
         initiate_game();
@@ -685,7 +685,7 @@ function start_party() {
     document.getElementById("replaynow").classList.add("replaynow123");
     play()
     //
-    stop_all_sounds();
+    //pause sound if possible (cange for all #1231)
     document.getElementById("start").play();
     // new Audio('./start.mp3').play()
     if (offlinegame === 0) {
@@ -823,7 +823,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         gameRef.off()
         //start game now
         //
-        stop_all_sounds();
+        //pause sound if possible (cange for all #1231)
         document.getElementById("join").play();
         // new Audio('./join.mp3').play()
         setTimeout(() => { 
@@ -860,7 +860,7 @@ function checkforjoin() { // hoster
             // start game now
             hoster = 1;
             //
-            stop_all_sounds();
+            //pause sound if possible (cange for all #1231)
             document.getElementById("join").play();
             // new Audio('./join.mp3').play()
             setTimeout(() => { 
@@ -2031,26 +2031,24 @@ function changeturn() { // to update in online case
 function playsound() {
     if (to_be_played === 1 /* move sound */) {
         //
-        stop_all_sounds();
+        //pause sound if possible (cange for all #1231)
         document.getElementById("move").play();
         // new Audio('./move.mp3').play()
     }else if (to_be_played === 2 /* capture sound */) {
         //
-        stop_all_sounds();
+        //pause sound if possible (cange for all #1231)
         document.getElementById("move-capture").play();
         // new Audio('./move-capture.mp3').play()
     }else if (to_be_played = 3 /* check sound */) {
         //
-        stop_all_sounds();
+        //pause sound if possible (cange for all #1231)
         document.getElementById("move-check").play();
         // new Audio('./move-check.mp3').play()
     }
 to_be_played = 0;
 }
 
-function stop_all_sounds() {
-    document.querySelectorAll('audio').forEach(el => el.pause());
-}
+
 
 function timeup() {
     StopClock();
