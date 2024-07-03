@@ -271,12 +271,11 @@
             .welcome{
                 display: flex;
                 width: max-content;
-                height:10vw;
                 text-align: center;
                 font-size: 6vw;
                 gap: 4vw ;
-                margin-top: calc( (100vh - 90vw) /10 );
-                margin-bottom: calc( (100vh - 90vw) /10);}
+                margin-top: calc( (100vh - 90vw) /20 );
+                margin-bottom: calc( (100vh - 90vw) /20);}
             .score {
                 bottom: 6vh;
                 font-size: 8vw;}
@@ -284,7 +283,7 @@
                 bottom: 10px;
                 font-size: 5vw;}
             .bottom_bar {
-                position: absolute;
+                position: flex ;
                 width: 100%;
                 bottom: 0px;}
             .grid-item {
@@ -444,7 +443,7 @@
             if (!timeron){
             timeron = true;
             inputHour = Number(0);
-            inputMinute = Number(5);
+            inputMinute = Number(1); // to set 5 mn
             inputSecond = Number(0);
         /* use (   document.getElementById("inputMinute").value   ) in Number()  */
             updatetime();
@@ -472,6 +471,10 @@
         {  
             if(inputSecond > 0){
                 inputSecond--;
+                if (inputSecond<10 && inputMinute === 0 && inputHour === 0){
+                    new Audio('./clock-ticking.mp3').play()
+                    document.getElementById("Replay").style.color = "#FF0000";
+                }
             }else{
                 if(inputMinute > 0){
                     inputMinute--;
@@ -519,9 +522,10 @@ var firebaseConfig = {
 // Initialize Firebase connection
 firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
-// End of online config
+// End of online config 
 // Start of game
 var say = "";
+var to_be_played = 0;
 var gameRef = database.ref('gameData');
 var gameRefjoin = database.ref('gameData');
 var gameRefplay = database.ref('gameData');
@@ -576,6 +580,7 @@ initiate_game()
 function initiate_game() {
     quit = 0;
     hoster = 0;
+    to_be_played = 0;
     offlinegame = 0;
     opponent_name = "";
     game_over = 0;
@@ -590,6 +595,7 @@ function initiate_game() {
     gameRefplay.off();
     gameRefjoin.off();
     document.getElementById("room").value = "" ;
+    document.getElementById("Replay").innerHTML = "Replay";
     play()
     start_new_game(1);
     checkname();
@@ -632,6 +638,7 @@ function quitgame() {
         quit = 0;
         if (offlinegame === 0) {
         sendmove("quitting");
+        new Audio('./quit.mp3').play()
         }
         initiate_game();
     }
@@ -660,11 +667,16 @@ function start_party() {
     document.getElementById("replaynow").classList.remove("replaynow");
     document.getElementById("replaynow").classList.add("replaynow123");
     play()
+    new Audio('./start.mp3').play()
+    if (offlinegame === 0) {
+        document.getElementById("Replay").style.color = "#3B3EFF";}
 }
 
 function start_online_party() { // to figure out
     start_party();
     start_new_game(0);
+    document.getElementById("Replay").classList.remove("Replay_disabled");
+    document.getElementById("Replay").classList.add("Replay");
     if (offlinegame === 0) {
         StopClock();
         StartClock();
@@ -681,6 +693,8 @@ function start_online_party() { // to figure out
         initiate_game();
         whyrestart(say);
         say = "";
+      } else if (data.pos === "timeup") {
+        timeup();
       } else {
         cloud_move(data.pos);
     }
@@ -789,7 +803,11 @@ function checkroomavailablity(room) { // joiner (can become hoster)
         document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
         gameRef.off()
         //start game now
-        start_online_party() 
+        // !important!
+        setInterval(() => { 
+            start_online_party() 
+            new Audio('./join.mp3').play()
+        }, 2450);
     }
     }});}
 
@@ -820,7 +838,10 @@ function checkforjoin() { // hoster
             document.getElementById("score").innerHTML = opponent_name.concat(" "," joined the room");
             // start game now
             hoster = 1;
+            setInterval(() => { 
             start_online_party() 
+            new Audio('./join.mp3').play()
+        }, 2500);
         }else {
             // refuse player 2
             console.log("refuse player 2");
@@ -1321,14 +1342,8 @@ function click(pos) {
                 color("used");
             }
             allowed_pos = [];
-            //king's check ground color
-        if (kingschecked[blackturn] === 1 && kingspos[blackturn] !== clicked) {
-            document.getElementById(kingspos[blackturn]).style.backgroundColor="#ff0000";  
-        }else {
-            normalcolor(kingspos[blackturn]);}
-        if ( kingspos[blackturn] ===  clicked) {
-            document.getElementById(clicked).style.backgroundColor = "#ffff7f"    
-        }
+            //king's check ground color !important!
+
 
             // test possible moves
             switch (slot(clicked)) {
@@ -1607,19 +1622,26 @@ function click(pos) {
             if (slot(clicked) != "" && blackturn === 0 && bpp != -1 ) {
               blackpieces = blackpieces.slice(0,bpp) + blackpieces.slice(bpp+1);
               blackpos.splice(bpp,1);
-              console.log(blackpieces);
-              console.log(blackpos);
+            /*  console.log(blackpieces);
+              console.log(blackpos); */
+              to_be_played = 2; // capture sound
             }
             if (slot(clicked) != "" && blackturn === 1 && wpp != -1 ) {
               whitepieces = whitepieces.slice(0,wpp) + whitepieces.slice(wpp+1);
               whitepos.splice(wpp,1);
-              console.log(whitepieces);
-              console.log(whitepos);
+            /*  console.log(whitepieces);
+              console.log(whitepos); */
+              to_be_played = 2; // capture sound
             }
             //
 
             document.getElementById(clicked).innerHTML = slot(lastclick);
             document.getElementById(lastclick).innerHTML = "";
+            if (to_be_played === 0) {
+                to_be_played = 1; // move sound
+            }
+
+
             if (blackturn === 1) {
                 clicks.push(1);
             } else {
@@ -1723,7 +1745,7 @@ function click(pos) {
             }
         }*/}
 
-
+        playsound(to_be_played);
         const backup1 = allowed_pos;
         const backup2 = clicked;
         if (isgameover()) {
@@ -1731,7 +1753,6 @@ function click(pos) {
         }
         allowed_pos = backup1;
         clicked = backup2;
-
 
         }
         
@@ -1853,6 +1874,7 @@ function color_hit(st) {
 }
 
 function endgame() { 
+    game_over = 1;
     if (!kingschecked[blackturn]) {
         document.getElementById("score").innerHTML = "Stalemate , Replay";
     } else if (blackturn === 0) {
@@ -1897,6 +1919,7 @@ function sleep(miliseconds) {
 
 function changeturn() { // to update in online case
     if (offlinegame === 0) {
+        document.getElementById("Replay").style.color = "#3B3EFF";
         StopClock();
         StartClock();
     }
@@ -1906,16 +1929,16 @@ function changeturn() { // to update in online case
             // online game
             if (!hoster) {
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
-                new Audio('./start.mp3').play()
+                    // new Audio('./start.mp3').play()
 
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
-                new Audio('./end.mp3').play()
+                // new Audio('./end.mp3').play()
 
             }        
         }else{
             document.getElementById("score").innerHTML = "♔ Black's Turn ♔";
-            new Audio('./start.mp3').play()
+            // new Audio('./start.mp3').play()
 
         }
         document.getElementById("score").style.backgroundColor="#000000";
@@ -1924,9 +1947,17 @@ function changeturn() { // to update in online case
             document.getElementById(kingspos[1]).style.backgroundColor="#ff0000";
             document.getElementById("score").style.backgroundColor="#ff0000";
             kingschecked[1] = 1;
+            to_be_played = 3; // check sound
         }else {
             kingschecked[1] = 0;
             normalcolor(kingspos[1]);
+        }
+        if (amichecked(0) === 1) {
+            document.getElementById(kingspos[0]).style.backgroundColor="#ff0000";
+            kingschecked[0] = 1;
+        }else {
+            kingschecked[0] = 0;
+            normalcolor(kingspos[0]);
         }
              
     } else {
@@ -1935,15 +1966,15 @@ function changeturn() { // to update in online case
             // online game
             if (hoster) {
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
-                new Audio('./start.mp3').play()
+                // new Audio('./start.mp3').play()
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
-                new Audio('./end.mp3').play()
+                // new Audio('./end.mp3').play()
 
             }
         }else{
             document.getElementById("score").innerHTML = "♔ White's Turn ♔";
-            new Audio('./start.mp3').play()
+            // new Audio('./start.mp3').play()
 
         }
         document.getElementById("score").style.backgroundColor="#ffffff";
@@ -1952,12 +1983,30 @@ function changeturn() { // to update in online case
             document.getElementById(kingspos[0]).style.backgroundColor="#ff0000";
             document.getElementById("score").style.backgroundColor="#ff0000"
             kingschecked[0] = 1;
+            to_be_played = 3; // check sound
         } else {
             kingschecked[0] = 0;
             normalcolor(kingspos[0]);
         }
+        if (amichecked(1) === 1) {
+            document.getElementById(kingspos[1]).style.backgroundColor="#ff0000";
+            kingschecked[1] = 1;
+        } else {
+            kingschecked[1] = 0;
+            normalcolor(kingspos[1]);
+        }
     }
-    
+}
+
+function playsound() {
+    if (to_be_played === 1 /* move sound */) {
+        new Audio('./move.mp3').play()
+    }else if (to_be_played === 2 /* capture sound */) {
+        new Audio('./move-capture.mp3').play()
+    }else if (to_be_played = 3 /* check sound */) {
+        new Audio('./move-check.mp3').play()
+    }
+to_be_played = 0;
 }
 
 function timeup() {
@@ -1965,6 +2014,7 @@ function timeup() {
     endgame();
     if (blackturn === 0) {
     document.getElementById("score").innerHTML = "Time Up , You Lost (quit)";
+    sendmove("timeup");
 }else {
     document.getElementById("score").innerHTML = "Time Up , You Won (quit)";
 }
