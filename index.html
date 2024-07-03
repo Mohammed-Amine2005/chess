@@ -4,7 +4,9 @@
     <title>Chess Game</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width , height=device-height, initial-scale=1.0 , maximum-scale=1.0, user-scalable=no">
-    <style>
+    <style>      
+
+
         .cbody {
           background-color: rgba(255, 223, 178, 0.5);
           margin: 0;
@@ -155,13 +157,32 @@
           text-align: center; 
           margin: auto;
           user-select: none}
+        .score1 {
+        display: none;
+        width: 100%;
+        text-align: center; 
+        margin: auto;
+        font-size: 8vw;
+        user-select: none}
+        .score12 {
+        width: 100%;
+        text-align: center; 
+        margin: auto;
+        font-size: 8vw;
+        user-select: none}
         .score {
           width: 100%;
           text-align: center; 
           margin: auto;
+          margin-top: 1vh;
           font-size: 8vw;
           border: 1px solid rgba(0, 0, 0, 0.8);
           user-select: none}
+        .btn15 {
+          background-color: #ffa44f;
+          font-size: 8vw;
+          height: fit-content;
+          width: fit-content;}
         .credit {
           width: 100%;
           text-align: center; 
@@ -171,7 +192,8 @@
         @media (aspect-ratio > 400/580) {
             .replaynow{
                 margin-top: 5vh ;
-                margin-bottom:7vh ;}
+                margin-bottom:7vh ;
+                font-size: 3vh ;}
             .replaynow123{
                 margin-top: 0px ;
                 margin-bottom:0px ;}
@@ -225,6 +247,12 @@
                 margin-bottom: 10px;}
             .score {
                 font-size: 5vh;}
+            .btn15 {
+                font-size: 3vh;}
+            .score1 {
+                font-size: 5vh;}
+            .score12 {
+                font-size: 4vh;}
             .credit {
                 font-size: 4vh;}
             .grid-item {
@@ -279,6 +307,12 @@
             .score {
                 bottom: 6vh;
                 font-size: 8vw;}
+            .btn15 {
+                font-size: 5vw;}
+            .score1 {
+                font-size: 6vw;}
+            .score12 {
+                font-size: 5vw;}
             .credit {
                 bottom: 10px;
                 font-size: 5vw;}
@@ -296,7 +330,7 @@
 <body class = "cbody">
     <h1 class="title" id = "title" onclick="whattoput()">♕ Chess Game ♔</h1>
     <div class="replaynow123" id="replaynow" >
-        <button class="Replay" id="Replay" onclick="play()">♜ Replay ♝</button>
+        <button class="Replay" id="Replay" onclick="Replay_now()">♜ Replay ♝</button>
         <button class="Replay" id="quit" onclick="quitgame()">♞ Quit ♟</button>
     </div>
     <div class="replaynow" id = "to remove 1"> 
@@ -424,8 +458,15 @@
         <div class="grid-item-index-down" id = "G0" >G</div>
         <div class="grid-item-index-down" id = "H0" >H</div>
         <div class="grid-item-empty" id = "I0" > </div>
-    
-    </div><div class="bottom_bar" >
+    </div>
+    <div class="score1" id="popupForm">
+        <span class="score12">Choose your piece : </span>
+        <button type="button" class="btn15" onclick="closeForm('1')">♛</button>
+        <button type="button" class="btn15" onclick="closeForm('2')">♝</button>
+        <button type="button" class="btn15" onclick="closeForm('3')">♞</button>
+        <button type="button" class="btn15" onclick="closeForm('4')">♜</button>
+    </div>
+    <div class="bottom_bar" >
         <div class="score" id="score" >white's Turn</div>
         <div class="credit" id="credit" >Developed By Mohamed Amine Hmida</div>
     </div>
@@ -541,15 +582,17 @@ var gameRef = database.ref('gameData');
 var gameRefjoin = database.ref('gameData');
 var gameRefplay = database.ref('gameData');
 var quit = 0;
+var spawnpiece = "";
 var opponent_name = "";
 var blackturn = 0;
 var hoster = 0;
 var can_start = 1;
 var used=[];
-var clicks = [];
 var whenturnoff=0;
 var allowed_pos=[];
 var clicked="";
+var willing_to_click = "";
+var willing_to_click2 = "";
 var kingspos=["E1","E8"];
 var blackpieces = "♜♞♝♛♚♝♞♜♟♟♟♟♟♟♟♟";
 var whitepieces = "♖♘♗♕♔♗♘♖♙♙♙♙♙♙♙♙";
@@ -573,6 +616,7 @@ var kingmoves = [0,0];
 var game_over = 0;
 var kingschecked=[0,0];
 var lastclick="";
+var lastlastclick="";
 var T=["♜","♞","♝","♛","♚","♝","♞","♜","♟","♟","♟","♟","♟","♟","♟","♟","♙","♙","♙","♙","♙","♙","♙","♙","♖","♘","♗","♕","♔","♗","♘","♖"];
 var whattospawnbl = " ♛♝♞♜♟";
 var whattospawnwi = " ♕♗♘♖♙";
@@ -593,6 +637,7 @@ function initiate_game() {
     hoster = 0;
     to_be_played = 0;
     offlinegame = 0;
+    spawnpiece = "";
     opponent_name = "";
     game_over = 0;
     can_start = 1;
@@ -608,6 +653,8 @@ function initiate_game() {
     document.getElementById("room").value = "" ;
     document.getElementById("Replay").innerHTML = "Replay";
     document.getElementById("Replay").style.color = ""
+    document.getElementById("score").style = "display:block";
+    document.getElementById("popupForm").style.display = "none";
     play()
     start_new_game(1);
     checkname();
@@ -618,8 +665,7 @@ function initiate_game() {
     document.getElementById("Replay").classList.remove("Replay");
     document.getElementById("Replay").classList.add("Replay_disabled");
     document.getElementById("Replay").style.color = "#474747"
-
-
+    
     document.getElementById("replaynow").style = "display:none";
     // !start party
     document.getElementById("to remove 1").style = "display:flex";
@@ -627,11 +673,12 @@ function initiate_game() {
     document.getElementById("welcome").style = "display:block";
     document.getElementById("welcome2").style = "display:block";
     document.getElementById("offline").style = "display:block";
-
+    
 
     document.getElementById("replaynow").classList.remove("replaynow123");
     document.getElementById("replaynow").classList.add("replaynow");
     document.getElementById("score").innerHTML = "join a room to start";
+
     document.getElementById("credit").innerHTML = "Developed By Mohamed Amine Hmida";
 
     document.getElementById("stophost").disabled = true;
@@ -662,6 +709,7 @@ function quitgame() {
         initiate_game();
         quit = 0;
     }}
+
 function offline_game() {
     initiate_game();
     offlinegame = 1;
@@ -721,22 +769,28 @@ function start_online_party() { // to figure out
 }
 
 function cloud_move(pos) {
-click(pos[0]+pos[1]);
-click(pos[2]+pos[3]);
+if (pos.length === 4) {
+    click(pos[0]+pos[1]);
+    click(pos[2]+pos[3]);
+}else if (pos.length === 5) {
+    click(pos[0]+pos[1]);
+    spawnpiece = pos[4];
+    click(pos[2]+pos[3]);
+}
 }
 
 function clicking(pos) {  /*to work out : feature to add : who starts as white */
     if (quit === 1) {
     quit = 0;
     document.getElementById("credit").innerHTML = "Developed By Mohamed Amine Hmida";}
-    if (offlinegame === 1 && game_over === 0) {
+    if (offlinegame === 1 && game_over === 0 ) {
     click(pos);
     }else if ( game_over === 0) {
         // onlinegame
         if ( (hoster && !blackturn)  ||  (!hoster && blackturn)  ) {
             click(pos);
             if (  (hoster && blackturn)  ||  (!hoster &&  !blackturn)  ) {
-                sendmove(lastclick + clicked);
+                sendmove(lastclick + clicked + spawnpiece );
             }
         }
 }}
@@ -902,6 +956,11 @@ function whattoput() {
         azertyb = wht[scrollingb % 4];
         document.getElementById("title").innerHTML = azertyb+" Chess Game "+azertyb;}}
 
+function Replay_now() {
+    initiate_game();
+    offline_game();
+}
+
 function play() { 
     // document.getElementById("Replay").style = "display:none";
     document.getElementById("Replay").disabled = true;
@@ -910,11 +969,12 @@ function play() {
     // disabled color button
     document.getElementById("Replay").style.color = "#474747"
     blackturn = 0;
-    clicks = [];
     whenturnoff=0;
     used=[];
     allowed_pos=[];
     clicked="";
+    willing_to_click="";
+    willing_to_click2="";
     right_black_rookmoves = ["H8"] ;
     left_black_rookmoves = ["A8"] ;
     right_white_rookmoves = ["H1"] ;
@@ -925,6 +985,7 @@ function play() {
     kingschecked=[0,0];
     rooksmoved=[[0,0],[0,0]];
     lastclick="";
+    lastlastclick="";
     let k=0;
     document.body.style.height = '100%';
     document.body.style.overflow = 'hidden';
@@ -1017,252 +1078,267 @@ function canmove(piece_pos) {
     clicked = piece_pos;
     allowed_pos = [];
     switch (slot(clicked)) {
-        case "♙":
-            if (blackturn == 0 && clicked[1] == "2") { 
-                if (slot(clicked[0]+"3") == "") {
-                    trycolor_dir(clicked[0]+"3");//go up
-                    if (slot(clicked[0]+"4") == "") {
-                        trycolor_dir(clicked[0]+"4");//go up and up
-                    }
-                }
-            } else if (blackturn == 0) {
-                if (slot(clicked[0]+(parseInt(clicked[1])+1)) == "") {
-                    trycolor_dir(clicked[0]+(parseInt(clicked[1])+1));//go up
-                }
-            }
-            if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])+1)))) {
-                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])+1));//go up and left
-            }
-            if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])+1))) ) {
-                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])+1));//go up and right
-            }
-            if (allowed_pos.length != 0) {
-                return 1;
-            }
-            break;
-        case "♟":
-            if (blackturn == 1 && clicked[1] == "7") {
-                if (slot(clicked[0]+"6") == "") {
-                    trycolor_dir(clicked[0]+"6");//go down
-                    if (slot(clicked[0]+"5") == "") {
-                        trycolor_dir(clicked[0]+"5");//go down and down
-                    }
-                }
-            } else if (blackturn == 1) {
-                if (slot(clicked[0]+(parseInt(clicked[1])-1)) == "") {
-                    trycolor_dir(clicked[0]+(parseInt(clicked[1])-1));//go down
-                }
-            }
-            if (["♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1))) ) {
-                console.log(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1))
-                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)-1) + (parseInt(clicked[1])-1));// go down and left
-            }
-            if (["♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])-1)))) {
-                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0)+1) + (parseInt(clicked[1])-1));// go down and right
-            }
-            if (allowed_pos.length != 0) {
-                return 1;
-            }
-            break;
-        case "♜":
-            if (blackturn == 1) {
-                let directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-                for (let [dx, dy] of (directions)) {
-                    let next_x = clicked.charCodeAt(0) + dx;
-                    let next_y = parseInt(clicked[1]) + dy;
-                    while (next_x >= 65 && next_x <= 72 && next_y >= 1 && next_y <= 8 && slot(String.fromCharCode(next_x) + next_y) == "") {
-                        trycolor_dir(String.fromCharCode(next_x) + next_y);
-                        next_x += dx;
-                        next_y += dy;
-                    }
-                    if (next_x >= 65 && next_x < 72 && next_y >= 1 && next_y <= 8) {
-                        if (["♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(next_x) + next_y))) {
-                            trycolor_hit(String.fromCharCode(next_x) + next_y);
+                case "♙":
+                    if (blackturn === 0 && clicked[1] === "2") {
+                        if (slot(clicked[0] + "3") === "") {
+                            trycolor_dir(clicked[0] + "3");
+                            if (slot(clicked[0] + "4") === "") {
+                                trycolor_dir(clicked[0] + "4");
+                            }
+                        }
+                    } else if (blackturn === 0) {
+                        if (slot(clicked[0] + (parseInt(clicked[1]) + 1)) === "") {
+                            trytrycolor_dir(clicked[0] + (parseInt(clicked[1]) + 1));
                         }
                     }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-        case "♞":
-            if (blackturn == 1) {
-                let directions = [[1, 2],[1, -2],[-1, 2],[-1, -2],[2, 1],[2, -1],[-2, 1],[-2, -1]];
-                for (let [x, y] of (directions)) {
-                    if (clicked.charCodeAt(0) + x >= 65 && clicked.charCodeAt(0) + x <= 72 && parseInt(clicked[1]) + y >= 1 && parseInt(clicked[1]) + y <= 8) {
-                        let pos = String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y);
-                        if (slot(pos) == "" || ["♙","♖","♘","♗","♔","♕"].includes(slot(pos))) {
-                            trycolor_dir(pos);
-                        } else {
-                            trycolor_hit(pos);
+                    if (!["", "out of bound", "♙", "♖", "♘", "♗", "♔", "♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) - 1) + (parseInt(clicked[1]) + 1)))) {
+                        trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) - 1) + (parseInt(clicked[1]) + 1));
+                    }
+                    if (!["", "out of bound", "♙", "♖", "♘", "♗", "♔", "♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + 1) + (parseInt(clicked[1]) + 1)))) {
+                        trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + 1) + (parseInt(clicked[1]) + 1));
+                    }
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    break;
+                case "♟":
+                    if (blackturn === 1 && clicked[1] === "7") {
+                        if (slot(clicked[0] + "6") === "") {
+                            trycolor_dir(clicked[0] + "6");
+                            if (slot(clicked[0] + "5") === "") {
+                                trycolor_dir(clicked[0] + "5");
+                            }
+                        }
+                    } else if (blackturn === 1) {
+                        if (slot(clicked[0] + (parseInt(clicked[1]) - 1)) === "") {
+                            trycolor_dir(clicked[0] + (parseInt(clicked[1]) - 1));
                         }
                     }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-        case "♝":
-            if (blackturn == 1) {
-                let directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-                for (let [x, y] of (directions)) {
-                    let p = 1;
-                    while (clicked.charCodeAt(0) + p*x >= 65 && clicked.charCodeAt(0) + p*x <= 72 && parseInt(clicked[1]) + p*y >= 1 && parseInt(clicked[1]) + p*y <= 8) {
-                        let pos = String.fromCharCode(clicked.charCodeAt(0) + p*x) + (parseInt(clicked[1]) + p*y);
-                        if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(pos)) || slot(pos) == "out of bound") {
-                            break;
+                    if (!["", "out of bound", "♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) - 1) + (parseInt(clicked[1]) - 1)))) {
+                        trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) - 1) + (parseInt(clicked[1]) - 1));
+                    }
+                    if (!["", "out of bound", "♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + 1) + (parseInt(clicked[1]) - 1)))) {
+                        trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + 1) + (parseInt(clicked[1]) - 1));
+                    }
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    break;
+                case "♜":
+                    if (blackturn === 1) {
+                        const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+                        for (const [dx, dy] of (directions)) {
+                            let next_x = clicked.charCodeAt(0) + dx;
+                            let next_y = parseInt(clicked[1]) + dy;
+                            while (next_x >= "A".charCodeAt(0) && next_x <= "H".charCodeAt(0) && next_y >= 1 && next_y <= 8 && slot(String.fromCharCode(next_x) + next_y) === "") {
+                                trycolor_dir(String.fromCharCode(next_x) + next_y);
+                                next_x += dx;
+                                next_y += dy;
+                            }
+                            if (next_x >= "A".charCodeAt(0) && next_x <= "H".charCodeAt(0) && next_y >= 1 && next_y <= 8) {
+                                if (["♙", "♖", "♘", "♗", "♔", "♕"].includes(slot(String.fromCharCode(next_x) + next_y))) {
+                                    trycolor_hit(String.fromCharCode(next_x) + next_y);
+                                }
+                            }
                         }
-                        if (slot(pos) == "") {
-                            trycolor_dir(pos);
-                        } else if (["♙","♖","♘","♗","♔","♕"].includes(slot(pos))) {
-                            trycolor_hit(pos);
-                            break;
-                        }
-                        p++;
-                    }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-        case "♛":
-            if (blackturn == 1) {
-                let directions = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]];
-                for (let [x, y] of (directions)) {
-                    let dx = x;
-                    let dy = y;
-                    while (slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)) == "") {
-                        trycolor_dir(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
-                        dx += x;
-                        dy += y;
-                    }
-                    if (["♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)))) {
-                        trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
-                    }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-        case "♚":
-            if (blackturn == 1) {
-                let directions = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]];
-                for (let [x, y] of (directions)) {
-                    if (slot(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y)) == "") {
-                        trycolor_dir(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y));
-                    } else if (["♙","♖","♘","♗","♔","♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y)))) {
-                        trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y));
-                    }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-        case "♖":
-            if (blackturn == 0) {
-                let directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-                for (let [dx, dy] of (directions)) {
-                    let next_x = clicked.charCodeAt(0) + dx;
-                    let next_y = parseInt(clicked[1]) + dy;
-                    while (next_x >= 65 && next_x <= 72 && next_y >= 1 && next_y <= 8 && slot(String.fromCharCode(next_x) + next_y) == "") {
-                        trycolor_dir(String.fromCharCode(next_x) + next_y);
-                        next_x += dx;
-                        next_y += dy;
-                    }
-                    if (next_x >= 65 && next_x < 72 && next_y >= 1 && next_y <= 8) {
-                        if ( ["♟","♜","♞","♝","♛","♚"].includes(slot(String.fromCharCode(next_x) + next_y))) {
-                            trycolor_hit(String.fromCharCode(next_x) + next_y);
+                    if (allowed_pos.length != 0) {
+                        return 1;
                         }
                     }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-        case "♘":
-            if (blackturn == 0) {
-                let directions = [[1, 2],[1, -2],[-1, 2],[-1, -2],[2, 1],[2, -1],[-2, 1],[-2, -1]];
-                for (let [x, y] of (directions)) {
-                    if (clicked.charCodeAt(0) + x >= 65 && clicked.charCodeAt(0) + x <= 72 && parseInt(clicked[1]) + y >= 1 && parseInt(clicked[1]) + y <= 8) {
-                        let pos = String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y);
-                        if (slot(pos) == "" || ["♟","♜","♞","♝","♛","♚"].includes(slot(pos))) {
-                            trycolor_dir(pos);
-                        } else {
-                            trycolor_hit(pos);
+                    break;
+                case "♞":
+                    if (blackturn === 1) {
+                        for (const [x, y] of [[1, 2], [1, -2], [-1, 2], [-1, -2], [2, 1], [2, -1], [-2, 1], [-2, -1]]) {
+                            if (clicked.charCodeAt(0) + x >= "A".charCodeAt(0) && clicked.charCodeAt(0) + x <= "H".charCodeAt(0) && parseInt(clicked[1]) + y >= 1 && parseInt(clicked[1]) + y <= 8) {
+                                const pos = String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y);
+                                if (slot(pos) === "" || ["♙", "♖", "♘", "♗", "♔", "♕"].includes(slot(pos))) {
+                                    if (slot(pos) === "") {
+                                        trycolor_dir(pos);
+                                    } else {
+                                        trycolor_hit(pos);
+                                    }
+                                }
+                            }
+                        }
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    }
+                    break;
+                case "♝":
+                    if (blackturn === 1) {
+                        for (const [x, y] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+                            let p = 1;
+                            while (clicked.charCodeAt(0) + p * x >= "A".charCodeAt(0) && clicked.charCodeAt(0) + p * x <= "H".charCodeAt(0) && parseInt(clicked[1]) + p * y >= 1 && parseInt(clicked[1]) + p * y <= 8) {
+                                const pos = String.fromCharCode(clicked.charCodeAt(0) + p * x) + (parseInt(clicked[1]) + p * y);
+                                if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(pos)) || slot(pos) === "out of bound") {
+                                    break;
+                                }
+                                if (slot(pos) === "") {
+                                    trycolor_dir(pos);
+                                } else {
+                                    trycolor_hit(pos);
+                                    break;
+                                }
+                                p += 1;
+                            }
+                        }
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    }
+                    break;
+                case "♛":
+                    if (blackturn === 1) {
+                        const directions = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]];
+                        for (const [x, y] of (directions)) {
+                            let dx = x;
+                            let dy = y;
+                            while (slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)) === "") {
+                                trycolor_dir(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
+                                dx += x;
+                                dy += y;
+                            }
+                            if (["♙", "♖", "♘", "♗", "♔", "♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)))) {
+                                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
+                            }
+                        }
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    }
+                    break;
+                case "♚":
+                    if (blackturn === 1) {
+                        const directions = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]];
+                        for (const [x, y] of (directions)) {
+                            if (slot(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y)) === "") {
+                                trycolor_dir(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y));
+                            } else if (["♙", "♖", "♘", "♗", "♔", "♕"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y)))) {
+                                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y));
+                            }
+                        }
+                        if (!amichecked(1) && kingsmoved[1] === 0) {
+                            if (slot("D8") === "" && slot("C8") === "" && slot("B8") === "" && slot("A8") === "♜" && !rooksmoved[1][0] && !canigetchecked("E8", "D8", 1) && !canigetchecked("E8", "C8", 1)) {
+                                trycolor_dir("C8");
+                            }
+                            if (slot("F8") === "" && slot("G8") === "" && slot("H8") === "♜" && !rooksmoved[1][1] && !canigetchecked("E8", "F8", 1) && !canigetchecked("E8", "G8", 1)) {
+                                trycolor_dir("G8");
+                            }
+                        }
+                    if (allowed_pos.length != 0) {
+                        return 1;
                         }
                     }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-        case "♗":
-            if (blackturn == 0) {
-                let directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-                for (let [x, y] of (directions)) {
-                    let p = 1;
-                    while (clicked.charCodeAt(0) + p*x >= 65 && clicked.charCodeAt(0) + p*x <= 72 && parseInt(clicked[1]) + p*y >= 1 && parseInt(clicked[1]) + p*y <= 8) {
-                        let pos = String.fromCharCode(clicked.charCodeAt(0) + p*x) + (parseInt(clicked[1]) + p*y);
-                        if (["♙","♖","♘","♗","♔","♕"].includes(slot(pos)) || slot(pos) == "out of bound") {
-                            break;
+                    break;
+                case "♖":
+                    if (blackturn === 0) {
+                        const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+                        for (const [dx, dy] of (directions)) {
+                            let next_x = clicked.charCodeAt(0) + dx;
+                            let next_y = parseInt(clicked[1]) + dy;
+                            while (next_x >= "A".charCodeAt(0) && next_x <= "H".charCodeAt(0) && next_y >= 1 && next_y <= 8 && slot(String.fromCharCode(next_x) + next_y) === "") {
+                                trycolor_dir(String.fromCharCode(next_x) + next_y);
+                                next_x += dx;
+                                next_y += dy;
+                            }
+                            if (next_x >= "A".charCodeAt(0) && next_x <= "H".charCodeAt(0) && next_y >= 1 && next_y <= 8) {
+                                if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(next_x) + next_y))) {
+                                    trycolor_hit(String.fromCharCode(next_x) + next_y);
+                                }
+                            }
                         }
-                        if (slot(pos) == "") {
-                            trycolor_dir(pos);
-                        } else if (["♟","♜","♞","♝","♛","♚"].includes(slot(pos))) {
-                            trycolor_hit(pos);
-                            break;
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    }
+                    break;
+                case "♘":
+                    if (blackturn === 0) {
+                        for (const [x, y] of [[1, 2], [1, -2], [-1, 2], [-1, -2], [2, 1], [2, -1], [-2, 1], [-2, -1]]) {
+                            if (clicked.charCodeAt(0) + x >= "A".charCodeAt(0) && clicked.charCodeAt(0) + x <= "H".charCodeAt(0) && parseInt(clicked[1]) + y >= 1 && parseInt(clicked[1]) + y <= 8) {
+                                const pos = String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y);
+                                if (slot(pos) === "" || ["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(pos))) {
+                                    if (slot(pos) === "") {
+                                        trycolor_dir(pos);
+                                    } else {
+                                        trycolor_hit(pos);
+                                    }
+                                }
+                            }
                         }
-                        p++;
+                    if (allowed_pos.length != 0) {
+                        return 1;
                     }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
+                    }
+                    break;
+                case "♗":
+                    if (blackturn === 0) {
+                        for (const [x, y] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+                            let p = 1;
+                            while (clicked.charCodeAt(0) + p * x >= "A".charCodeAt(0) && clicked.charCodeAt(0) + p * x <= "H".charCodeAt(0) && parseInt(clicked[1]) + p * y >= 1 && parseInt(clicked[1]) + p * y <= 8) {
+                                const pos = String.fromCharCode(clicked.charCodeAt(0) + p * x) + (parseInt(clicked[1]) + p * y);
+                                if (["♙", "♖", "♘", "♗", "♔", "♕"].includes(slot(pos)) || slot(pos) === "out of bound") {
+                                    break;
+                                }
+                                if (slot(pos) === "") {
+                                    trycolor_dir(pos);
+                                } else {
+                                    trycolor_hit(pos);
+                                    break;
+                                }
+                                p += 1;
+                            }
+                        }
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    }
+                    break;
+                case "♕":
+                    if (blackturn === 0) {
+                        const directions = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]];
+                        for (const [x, y] of (directions)) {
+                            let dx = x;
+                            let dy = y;
+                            while (slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)) === "") {
+                                trycolor_dir(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
+                                dx += x;
+                                dy += y;
+                            }
+                            if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)))) {
+                                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
+                            }
+                        }
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    }
+                    break;
+                case "♔":
+                    if (blackturn === 0) {
+                        const directions = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]];
+                        for (const [x, y] of (directions)) {
+                            if (slot(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y)) === "") {
+                                trycolor_dir(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y));
+                            } else if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y)))) {
+                                trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y));
+                            }
+                        }
+                        if (!amichecked(0) && !kingsmoved[0]) {
+                            if (slot("D1") + slot("C1") + slot("B1") === "" && slot("A1") === "♖" && !rooksmoved[0][0] && !canigetchecked("E1", "D1", 0) && !canigetchecked("E1", "C1", 0)) {
+                                trycolor_dir("C1");
+                            }
+                            if (slot("F1") === "" && slot("G1") === "" && slot("H1") === "♖" && !rooksmoved[0][1] && !canigetchecked("E1", "F1", 0) && !canigetchecked("E1", "G1", 0)) {
+                                trycolor_dir("G1");
+                            }
+                        }
+                    if (allowed_pos.length != 0) {
+                        return 1;
+                    }
+                    }
+                    break;
             }
-            break;
-        case "♕":
-            if (blackturn == 0) {
-                let directions = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]];
-                for (let [x, y] of (directions)) {
-                    let dx = x;
-                    let dy = y;
-                    while (slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)) == "") {
-                        trycolor_dir(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
-                        dx += x;
-                        dy += y;
-                    }
-                    if (["♟","♜","♞","♝","♛","♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy)))) {
-                        trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + dx) + (parseInt(clicked[1]) + dy));
-                    }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-        case "♔":
-            if (blackturn == 0) {
-                let directions = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]];
-                for (let [x, y] of (directions)) {
-                    if (slot(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y)) == "") {
-                        trycolor_dir(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y));
-                    } else if (["♟","♜","♞","♝","♛","♚"].includes(slot(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y)))) {
-                        trycolor_hit(String.fromCharCode(clicked.charCodeAt(0) + x) + (parseInt(clicked[1]) + y));
-                    }
-                }
-                if (allowed_pos.length != 0) {
-                    return 1;
-                }
-            }
-            break;
-    }
     return 0;
 }
 
@@ -1353,7 +1429,8 @@ function possible_check(turn) {
 }
 
 function click(pos) { 
-    if (pos !== clicked) {
+    if (pos !== clicked && willing_to_click2 === "" ) {
+        lastlastclick = lastclick
         lastclick = clicked;
         clicked = pos;
         
@@ -1433,7 +1510,7 @@ function click(pos) {
                                 next_x += dx;
                                 next_y += dy;
                             }
-                            if (next_x >= "A".charCodeAt(0) && next_x < "H".charCodeAt(0) && next_y >= 1 && next_y <= 8) {
+                            if (next_x >= "A".charCodeAt(0) && next_x <= "H".charCodeAt(0) && next_y >= 1 && next_y <= 8) {
                                 if (["♙", "♖", "♘", "♗", "♔", "♕"].includes(slot(String.fromCharCode(next_x) + next_y))) {
                                     color_hit(String.fromCharCode(next_x) + next_y);
                                 }
@@ -1535,7 +1612,7 @@ function click(pos) {
                                 next_x += dx;
                                 next_y += dy;
                             }
-                            if (next_x >= "A".charCodeAt(0) && next_x < "H".charCodeAt(0) && next_y >= 1 && next_y <= 8) {
+                            if (next_x >= "A".charCodeAt(0) && next_x <= "H".charCodeAt(0) && next_y >= 1 && next_y <= 8) {
                                 if (["♟", "♜", "♞", "♝", "♛", "♚"].includes(slot(String.fromCharCode(next_x) + next_y))) {
                                     color_hit(String.fromCharCode(next_x) + next_y);
                                 }
@@ -1633,6 +1710,13 @@ function click(pos) {
         
         } else {//moving after checking
             // document.getElementById("Replay").style = "display:block";
+            if (((clicked[1] === "1" && slot(lastclick)=== "♟") || (clicked[1] === "8" && slot(lastclick)=== "♙"))&& spawnpiece === "") {
+                willing_to_click=clicked;
+                willing_to_click2=clicked;
+                clicked = lastclick;
+                lastclick = lastlastclick;
+                openForm();
+            } else {
             if (offlinegame === 1) {
             document.getElementById("Replay").disabled = false;
             document.getElementById("Replay").classList.remove("Replay_disabled");
@@ -1663,6 +1747,35 @@ function click(pos) {
               to_be_played = 2; // capture sound
             }
             //
+            // updating board
+            if (slot(lastclick) === "♟" && clicked[1] === "1") {
+//                document.getElementById(lastclick).innerHTML = "";
+                if (spawnpiece === "1" ) {
+                    document.getElementById(lastclick).innerHTML = "♛";
+                }else if (spawnpiece === "2") {
+                    document.getElementById(lastclick).innerHTML = "♝";
+                }else if (spawnpiece === "3") {
+                    document.getElementById(lastclick).innerHTML = "♞";
+                }else if (spawnpiece === "4") { 
+                    document.getElementById(lastclick).innerHTML = "♜";
+                }
+                spawnpiece = "";
+                blackpieces = blackpieces.slice(0,blackpos.indexOf(lastclick)) +document.getElementById(lastclick).innerHTML+blackpieces.slice(blackpos.indexOf(lastclick)+1,blackpieces.length)                
+            }
+            if (slot(lastclick) === "♙" && clicked[1] === "8") {
+//                document.getElementById(lastclick).innerHTML = "";
+                if (spawnpiece === "1" ) {
+                    document.getElementById(lastclick).innerHTML = "♕";
+                }else if (spawnpiece === "2") {
+                    document.getElementById(lastclick).innerHTML = "♗";
+                }else if (spawnpiece === "3") {
+                    document.getElementById(lastclick).innerHTML = "♘";
+                }else if (spawnpiece === "4") { 
+                    document.getElementById(lastclick).innerHTML = "♖";
+                }
+                spawnpiece = "";
+                whitepieces = whitepieces.slice(0,whitepos.indexOf(lastclick)) +document.getElementById(lastclick).innerHTML+whitepieces.slice(whitepos.indexOf(lastclick)+1,whitepieces.length)
+            }
 
             document.getElementById(clicked).innerHTML = slot(lastclick);
             document.getElementById(lastclick).innerHTML = "";
@@ -1671,11 +1784,6 @@ function click(pos) {
             }
 
 
-            if (blackturn === 1) {
-                clicks.push(1);
-            } else {
-                clicks.push(0);
-            }
             if (slot(clicked) === "♖" || slot(clicked) === "♜") {
                 if (slot("A1") !== "♖") {
                     rooksmoved[blackturn][0] = 1;
@@ -1704,21 +1812,9 @@ function click(pos) {
                 document.getElementById("F8").innerHTML = "♜";
             }
             if (blackturn === 0) {
-                try {
                     whitepos[whitepos.indexOf(lastclick)] = clicked;
-                } catch (error) {
-                    console.log("a problem while updating white position");
-                    play();
-                    return;
-                }
             } else {
-                try {
                     blackpos[blackpos.indexOf(lastclick)] = clicked;
-                } catch (error) {
-                    console.log("a problem while updating black position");
-                    play();
-                    return;
-                }
             }
 
             allowed_pos = [];
@@ -1773,7 +1869,7 @@ function click(pos) {
                 document.getElementById("score").style.backgroundColor="#ff0000";
             }
         }*/
-       }
+       
 
         playsound(to_be_played);
         const backup1 = allowed_pos;
@@ -1785,7 +1881,8 @@ function click(pos) {
         clicked = backup2;
 
         }
-        
+    }
+    }
 }
 
 function addpiece(pos, piece) {
@@ -1948,8 +2045,9 @@ function sleep(miliseconds) {
 }
 
 function changeturn() { // to update in online case
+    document.getElementById("Replay").style.color = "#3B3EFF";
+
     if (offlinegame === 0) {
-        document.getElementById("Replay").style.color = "#3B3EFF";
         StopClock();
         StartClock();
     }
@@ -2048,8 +2146,6 @@ function playsound() {
 to_be_played = 0;
 }
 
-
-
 function timeup() {
     StopClock();
     game_over = 1;
@@ -2067,6 +2163,21 @@ function timeup() {
     document.getElementById("score").style.backgroundColor = "#00FF00";
     document.getElementById("score").style.color = "#000000";
 }
+}
+
+function closeForm (sss) {
+    spawnpiece = sss;
+    document.getElementById("score").style = "display:block";
+    document.getElementById("popupForm").style.display = "none";
+    willing_to_click2 = "";
+    click(willing_to_click);
+    willing_to_click = "";
+}
+
+function openForm () {
+    document.getElementById("popupForm").style.display = "block";
+    document.getElementById("score").style = "display:none";
+
 }
 
 // End of game
