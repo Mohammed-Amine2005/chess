@@ -596,6 +596,7 @@ function initiate_game() {
     gameRefjoin.off();
     document.getElementById("room").value = "" ;
     document.getElementById("Replay").innerHTML = "Replay";
+    document.getElementById("Replay").style.color = ""
     play()
     start_new_game(1);
     checkname();
@@ -605,6 +606,8 @@ function initiate_game() {
     document.getElementById("Replay").disabled = true;
     document.getElementById("Replay").classList.remove("Replay");
     document.getElementById("Replay").classList.add("Replay_disabled");
+    document.getElementById("Replay").style.color = "#474747"
+
 
     document.getElementById("replaynow").style = "display:none";
     // !start party
@@ -677,10 +680,9 @@ function start_online_party() { // to figure out
     start_new_game(0);
     document.getElementById("Replay").classList.remove("Replay_disabled");
     document.getElementById("Replay").classList.add("Replay");
-    if (offlinegame === 0) {
-        StopClock();
-        StartClock();
-    }
+    document.getElementById("Replay").style.color = "#3B3EFF"
+    StopClock();
+    StartClock();
 
     //listening for moves
     gameRefplay.on('value', (snapshot) => {
@@ -882,6 +884,8 @@ function play() {
     document.getElementById("Replay").disabled = true;
     document.getElementById("Replay").classList.remove("Replay");
     document.getElementById("Replay").classList.add("Replay_disabled");
+    // disabled color button
+    document.getElementById("Replay").style.color = "#474747"
     blackturn = 0;
     clicks = [];
     whenturnoff=0;
@@ -2010,14 +2014,17 @@ to_be_played = 0;
 
 function timeup() {
     StopClock();
-    endgame();
-    if (blackturn === 0) {
+    game_over = 1;
+    gameRefplay.off();
+    if (blackturn === 0 && hoster === 1 || blackturn === 1 && hoster === 0) {
     document.getElementById("score").innerHTML = "Time Up , You Lost (quit)";
     sendmove("timeup");
 }else {
+    StopClock();
+    game_over = 1;
+    gameRefplay.off();
     document.getElementById("score").innerHTML = "Time Up , You Won (quit)";
 }
-game_over = 1;
 }
 
 // End of game
