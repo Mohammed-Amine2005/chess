@@ -774,7 +774,8 @@ if (pos.length === 4) {
     click(pos[2]+pos[3]);
 }else if (pos.length === 5) {
     click(pos[0]+pos[1]);
-    spawnpiece = pos[4];
+    click(pos[2]+pos[3]);
+    closeForm(pos[4]);
     click(pos[2]+pos[3]);
 }
 }
