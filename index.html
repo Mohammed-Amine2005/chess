@@ -1858,7 +1858,7 @@ function endgame() {
     } else if (blackturn === 0) {
     if (offlinegame === 0) {
             // online game
-            if (hoster) {
+            if (!hoster) {
                 document.getElementById("score").innerHTML = "♔ You Win The Game ! ♔";
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," Wins The Game ! ♔");
@@ -1870,7 +1870,7 @@ function endgame() {
     } else {
         if (offlinegame === 0) {
             // online game
-            if (!hoster) {
+            if (hoster) {
                 document.getElementById("score").innerHTML = "♔ You Win The Game ! ♔";
             }else{
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," Wins The Game ! ♔");
