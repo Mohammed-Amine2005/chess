@@ -765,6 +765,7 @@ function start_online_party() { // to figure out
         StopClock();
        //pause sound if possible (cange for all #1231)
         document.getElementById("quitsound").play(); 
+        initiate_game();
         whyrestart(say);
         say = "";
       } else if (data.pos === "timeup") {
@@ -923,8 +924,7 @@ function whyrestart(reason) {
         setTimeout(() => { 
             document.getElementById("score").innerHTML = "join a room to start";
             start_new_game(1);
-            initiate_game();
-        }, 2000);}
+            }, 2000);}
 
 function stop_hosting() {
     initiate_game();
@@ -2098,19 +2098,25 @@ function sleep(miliseconds) {
 function changeturn() { // to update in online case
     document.getElementById("Replay").style.color = "#3B3EFF";
 
-    if (offlinegame === 0) {
-        StopClock();
-        StartClock();
-    }
     if (blackturn === 0) {
         blackturn = 1;
         if (offlinegame === 0) {
             // online game
             if (!hoster) {
+                StopClock();
+                inputHour = 0;
+                inputMinute = 5;
+                inputSecond = 0;
+                StartClock();
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
                     // new Audio('./start.mp3').play() (not concerned)
 
             }else{
+                StopClock();
+                inputHour = 0;
+                inputMinute = 5;
+                inputSecond = 3;
+                StartClock();
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
                 // new Audio('./end.mp3').play() ( not concerned)
 
@@ -2144,9 +2150,19 @@ function changeturn() { // to update in online case
         if (offlinegame === 0) {
             // online game
             if (hoster) {
+                StopClock();
+                inputHour = 0;
+                inputMinute = 5;
+                inputSecond = 0;
+                StartClock();
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
                 // new Audio('./start.mp3').play() ( not concerned)
             }else{
+                StopClock();
+                inputHour = 0;
+                inputMinute = 5;
+                inputSecond = 3;
+                StartClock();
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
                 // new Audio('./end.mp3').play() ( not concerned)
 
