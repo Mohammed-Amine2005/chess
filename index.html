@@ -492,8 +492,8 @@
             if (!timeron){
             timeron = true;
             inputHour = Number(0);
-            inputMinute = Number(0); // to set 5 mn
-            inputSecond = Number(20);
+            inputMinute = Number(5); // to set 5 mn
+            inputSecond = Number(0);
         /* use (   document.getElementById("inputMinute").value   ) in Number()  */
             updatetime();
             timerApp = setInterval(myClock, 1000);
@@ -758,11 +758,15 @@ function start_online_party() { // to figure out
         console.log("quitting");
         say = opponent_name.concat(" left the room");
         initiate_game();
+        StopClock();
+       //pause sound if possible (cange for all #1231)
+        document.getElementById("quitsound").play(); 
         whyrestart(say);
         say = "";
       } else if (data.pos === "timeup") {
         timeup();
       } else {
+        console.log("trying to change piece: ", data.pos);
         cloud_move(data.pos);
         spawnpiece = "";
     }
@@ -777,7 +781,7 @@ if (pos.length === 4) {
     click(pos[0]+pos[1]);
     click(pos[2]+pos[3]);
     closeForm(pos[4]);
-    click(pos[2]+pos[3]);
+    spawnpiece = "";
 }
 willing_to_click2 = "wait";
 setTimeout(() => { willing_to_click2 = "";}, 500);
@@ -794,6 +798,7 @@ function clicking(pos) {  /*to work out : feature to add : who starts as white *
         if ( (hoster && !blackturn)  ||  (!hoster && blackturn)  ) {
             click(pos);
             if (  (hoster && blackturn)  ||  (!hoster &&  !blackturn)  ) {
+                console.log("sending move: ", lastclick + clicked + spawnpiece );
                 sendmove(lastclick + clicked + spawnpiece );
                 spawnpiece = "";
             }
