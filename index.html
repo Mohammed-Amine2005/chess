@@ -2187,12 +2187,8 @@ function closeForm (sss) {
     document.getElementById("score").style = "display:block";
     document.getElementById("popupForm").style.display = "none";
     willing_to_click2 = "";
-    click(willing_to_click);
-    if (  (hoster && blackturn)  ||  (!hoster &&  !blackturn)  ) {
-                console.log("sending move: ", lastclick + clicked + spawnpiece );
-                sendmove(lastclick + clicked + spawnpiece );
-                spawnpiece = "";
-            }
+    clicking(willing_to_click);
+
     willing_to_click = "";
 }
 
