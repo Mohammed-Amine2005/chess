@@ -865,8 +865,6 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     gameRef = database.ref( "gameData".concat("/",room) );
     gameRefjoin = database.ref( "gameData".concat("/",room) );
     gameRefplay = database.ref( "gameData".concat("/",room) );
-    // send my name
-    gameRef.set({ join : name });
     // check for response (if not , i am hoster)
     setTimeout(() => {  
         // for hoster , later
@@ -881,7 +879,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         document.getElementById("stophost").classList.add("offline");
         checkforjoin();
         }
-     }, 300 ); /* testing */ /* old settings : randomIntFromInterval(200, 500) */ 
+     }, 300 );
 
     // listen for response
     gameRef.on('value', (snapshot) => {
@@ -917,9 +915,11 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         // new Audio('./join.mp3').play()
         setTimeout(() => { 
             start_online_party() 
-        }, 2450);
+        }, 2500);
     }
-    }});}
+    }});
+// send my name
+gameRef.set({ join : name });}
 
 function randomIntFromInterval(min, max) { // min and max included 
   return Math.floor(Math.random() * (max - min + 1) + min);}
