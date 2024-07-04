@@ -2188,6 +2188,11 @@ function closeForm (sss) {
     document.getElementById("popupForm").style.display = "none";
     willing_to_click2 = "";
     click(willing_to_click);
+    if (  (hoster && blackturn)  ||  (!hoster &&  !blackturn)  ) {
+                console.log("sending move: ", lastclick + clicked + spawnpiece );
+                sendmove(lastclick + clicked + spawnpiece );
+                spawnpiece = "";
+            }
     willing_to_click = "";
 }
 
