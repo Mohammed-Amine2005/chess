@@ -577,6 +577,7 @@ firebase.initializeApp(firebaseConfig);
 // End of online config 
 // Start of game
 var say = "";
+var to_delete = "";
 var to_be_played = 0;
 var gameRef = database.ref('gameData');
 var gameRefjoin = database.ref('gameData');
@@ -701,6 +702,10 @@ function quitgame() {
     } else {
         if (offlinegame === 0) {
         sendmove("quitting");
+        setTimeout(() => { 
+            to_delete = room ;
+            database.ref('gameData/'.concat(room)).remove();
+         }, 1000);
     }
         StopClock();
         //
@@ -759,7 +764,7 @@ function start_online_party() { // to figure out
     //listening for moves
     gameRefplay.on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data.pos !== lastsent /* !== to figure later*/) {
+    if (data.pos !== lastsent && typeof( data.pos ) !== "undefined" /* !== to figure later*/) {
       console.log("Received answer:", data.pos);
       if (data.pos === "quitting") {
         console.log("quitting");
@@ -786,12 +791,12 @@ function start_online_party() { // to figure out
 }
 
 function cloud_move(pos) {
-// !hoster === blackturn : black's turn
-// hoster === !blackturn : white's turn
-if (hoster === !blackturn){
+// !hoster && blackturn : black's turn my turn
+// hoster && !blackturn : white's turn my turn
+if (hoster && !blackturn && typeof( pos ) !== "undefined" ){ 
     hoster = !hoster;
 }
-if (!hoster === blackturn ) {
+if (!hoster && blackturn && typeof( pos ) !== "undefined") {
     hoster = !hoster;
 }
 if (pos.length === 4) {
@@ -893,7 +898,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     // listen for response
     gameRef.on('value', (snapshot) => {
     const data = snapshot.val();
-    if ( data.join !== null && data.join !== name) {
+    if (  typeof( data.join ) !== "undefined" && data.join !== name) {
       console.log("Received answer:", data.join);
       if (data.join === "no") {
         // room full
@@ -948,7 +953,7 @@ function stop_hosting() {
 function checkforjoin() { // hoster
     gameRefjoin.on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data.join) {
+    if ( typeof( data.join ) !== "undefined") {
       console.log("Received answer:", data.join);
       if (data.join !== name && data.join !== "ok" && data.join !== "no") {
         if (opponent_name === "") {
