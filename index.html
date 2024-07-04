@@ -904,7 +904,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     // listen for response
     gameRef.on('value', (snapshot) => {
     const data = snapshot.val();
-    if (  typeof( data.join ) !== "undefined" && data.join !== name) {
+    if (  typeof( data.join ) !== "undefined" && data.join !== get_name()) {
       console.log("Received answer:", data.join);
       if (data.join === "no") {
         // room full
