@@ -786,6 +786,14 @@ function start_online_party() { // to figure out
 }
 
 function cloud_move(pos) {
+// !hoster === blackturn : black's turn
+// hoster === !blackturn : white's turn
+if (hoster === !blackturn){
+    hoster = !hoster;
+}
+if (!hoster === blackturn ) {
+    hoster = !hoster;
+}
 if (pos.length === 4) {
     click(pos[0]+pos[1]);
     click(pos[2]+pos[3]);
