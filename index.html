@@ -577,6 +577,7 @@ firebase.initializeApp(firebaseConfig);
 // End of online config 
 // Start of game
 var say = "";
+const id = randomIntFromInterval(10000000,99999999);
 var to_delete = "";
 var to_be_played = 0;
 var gameRef = database.ref('gameData');
@@ -969,12 +970,12 @@ function checkforjoin() { // hoster
     const data = snapshot.val();
     if ( typeof( data.join ) !== "undefined") {
       console.log("Received answer:", data.join);
-      if (data.join !== name && data.join !== "ok" && data.join !== "no") {
+      if (data.join !== get_name() && data.join !== "ok" && data.join !== "no") {
         if (opponent_name === "") {
             // accept player 2
             console.log("accept player 2");
             opponent_name = data.join ;
-            gameRefjoin.set({ join : name });
+            gameRefjoin.set({ join : get_name() });
             document.getElementById("score").innerHTML = get_opponent_name().concat(" "," joined the room");
             document.getElementById("stophost").disabled = true;
             document.getElementById("stophost").classList.remove("offline");
@@ -1009,7 +1010,7 @@ function start_new_game(stat) {
 }
 
 function get_name() {// translate name to id
-    return name.concat("#",randomIntFromInterval(10000,99999));
+    return name.concat("#",id);
 }
 
 function get_opponent_name() {//exract name from id
