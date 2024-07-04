@@ -758,6 +758,10 @@ function start_online_party() { // to figure out
         console.log("quitting");
         say = opponent_name.concat(" left the room");
         initiate_game();
+        // disable 2 player button
+    document.getElementById("offline").disabled = true;
+    document.getElementById("offline").classList.remove("offline");
+    document.getElementById("offline").classList.add("offline_disabled");
         StopClock();
        //pause sound if possible (cange for all #1231)
         document.getElementById("quitsound").play(); 
@@ -853,6 +857,23 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     gameRef = database.ref( "gameData".concat("/",room) );
     gameRefjoin = database.ref( "gameData".concat("/",room) );
     gameRefplay = database.ref( "gameData".concat("/",room) );
+    database.ref( "gameData".concat("/",room,"/trying") ).on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data !== null) {
+        // someone is trying to join
+        console.log("someone is trying to join");
+        room = "";
+        say = " ".concat(data," is trying to join, try again.");
+        initiate_game();
+        whyrestart(say);
+        say = "";
+        return;
+    }
+    setTimeout(() => {
+        database.ref( "gameData".concat("/",room,"/trying") ).off();
+    }, 250 );
+    });
+    gameRef.set({ trying : name });
     gameRef.set({ join : name });
     setTimeout(() => { 
         if (room !== "" && opponent_name === "") {
@@ -866,7 +887,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         document.getElementById("stophost").classList.add("offline");
         checkforjoin();
         }
-     }, 300 ); /* testing */ /* old settings : randomIntFromInterval(200, 500) */ 
+     }, 500 ); /* testing */ /* old settings : randomIntFromInterval(200, 500) */ 
     gameRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (data.join !== name) {
@@ -877,6 +898,10 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         room = "";
         initiate_game();
         whyrestart("room is full");
+        // disable 2 player button
+    document.getElementById("offline").disabled = true;
+    document.getElementById("offline").classList.remove("offline");
+    document.getElementById("offline").classList.add("offline_disabled");
 
       }else{
         // joined
@@ -905,7 +930,7 @@ function whyrestart(reason) {
         setTimeout(() => { 
             document.getElementById("score").innerHTML = "join a room to start";
             start_new_game(1);
-            checkroom();
+            initiate_game();
         }, 2000);}
 
 function stop_hosting() {
