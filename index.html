@@ -859,7 +859,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     gameRefplay = database.ref( "gameData".concat("/",room) );
     database.ref( "gameData".concat("/",room,"/trying") ).on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data !== null) {
+    if (data !== null && data !== name) {
         // someone is trying to join
         console.log("someone is trying to join");
         room = "";
