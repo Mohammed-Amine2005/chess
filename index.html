@@ -871,7 +871,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     }
     setTimeout(() => {
         database.ref( "gameData".concat("/",room,"/trying") ).off();
-    }, 250 );
+    }, 500 );
     });
     gameRef.set({ trying : name });
     gameRef.set({ join : name });
