@@ -617,9 +617,10 @@ var game_over = 0;
 var kingschecked=[0,0];
 var lastclick="";
 var lastlastclick="";
+var lastlastlastclick="";
+var posfrom="";
+var posto="";
 var T=["♜","♞","♝","♛","♚","♝","♞","♜","♟","♟","♟","♟","♟","♟","♟","♟","♙","♙","♙","♙","♙","♙","♙","♙","♖","♘","♗","♕","♔","♗","♘","♖"];
-var whattospawnbl = " ♛♝♞♜♟";
-var whattospawnwi = " ♕♗♘♖♙";
 var scrollingb = 0;
 var scrollingw = 0;
 var azertyb = "♕";
@@ -1023,6 +1024,9 @@ function play() {
     rooksmoved=[[0,0],[0,0]];
     lastclick="";
     lastlastclick="";
+    lastlastlastclick="";
+    posfrom="";
+    posto="";
     let k=0;
     document.body.style.height = '100%';
     document.body.style.overflow = 'hidden';
@@ -1467,12 +1471,15 @@ function possible_check(turn) {
 
 function click(pos) { 
     if (pos !== clicked && willing_to_click2 === "" ) {
+        color(posfrom);
+        color(posto);
+        lastlastlastclick = lastlastclick
         lastlastclick = lastclick
         lastclick = clicked;
         clicked = pos;
-        
 
         if (!(allowed_pos.includes(clicked))) {
+            
             if ((slot(clicked) === "♙" || slot(clicked) === "♖" || slot(clicked) === "♘" || slot(clicked) === "♗" || slot(clicked) === "♔" || slot(clicked) === "♕") && blackturn === 0) {
                 color("used");
                 color(clicked);
@@ -1483,6 +1490,18 @@ function click(pos) {
                 color("used");
             }
             allowed_pos = [];
+
+            
+
+            if ((slot(clicked) === "♙" || slot(clicked) === "♖" || slot(clicked) === "♘" || slot(clicked) === "♗" || slot(clicked) === "♔" || slot(clicked) === "♕") && blackturn === 0 && (clicked === posfrom || clicked === posto)) {
+            } else if ((slot(clicked) === "♟" || slot(clicked) === "♜" || slot(clicked) === "♞" || slot(clicked) === "♝" || slot(clicked) === "♛" || slot(clicked) === "♚") && blackturn === 1 && (clicked === posfrom || clicked === posto)) {
+            } else if ( posfrom !== "" && posto !== "") {
+                // last played
+            document.getElementById(posfrom).style.backgroundColor = "#FFDD00";                  
+            document.getElementById(posto).style.backgroundColor = "#FFBB00";
+            }
+
+
             //king's check ground color !important!
             if (kingschecked[blackturn] && kingspos[blackturn] !== clicked) {
                 document.getElementById(kingspos[blackturn]).style.backgroundColor="#ff0000"
@@ -1745,14 +1764,19 @@ function click(pos) {
                     return;
             }
         
+                 
         } else {//moving after checking
             // document.getElementById("Replay").style = "display:block";
             if (((clicked[1] === "1" && slot(lastclick)=== "♟") || (clicked[1] === "8" && slot(lastclick)=== "♙"))&& spawnpiece === "") {
                 willing_to_click=clicked;
-                willing_to_click2=clicked;
+                willing_to_click2=clicked
+                color_all(); // problem occurs here
+                document.getElementById(clicked).style.backgroundColor = "#FFDD00";                  
+                document.getElementById(lastclick).style.backgroundColor = "#FFBB00";;
                 clicked = lastclick;
                 lastclick = lastlastclick;
                 openForm();
+                
             } else {
             if (offlinegame === 1) {
             document.getElementById("Replay").disabled = false;
@@ -1937,6 +1961,12 @@ function click(pos) {
         allowed_pos = backup1;
         clicked = backup2;
 
+        posfrom = lastclick ;
+        posto = clicked ;
+            // last played
+            
+            document.getElementById(posfrom).style.backgroundColor = "#FFDD00";                  
+            document.getElementById(posto).style.backgroundColor = "#FFBB00";
         }
     }
     }
@@ -1976,6 +2006,30 @@ function slot(pos) {
   }
   return "out of bound";   
 }
+
+function color_all () {
+let pi = -1;
+        for (let i = 1; i < 9; i++) {
+            pi += 1;
+            for (const j of ["A", "B", "C", "D", "E", "F", "G", "H"]) {
+                const p = `${j}${i}`;
+                if (pi % 2 === 0) {
+                    try {
+                        document.getElementById(p).style.backgroundColor = "#f1bb7e";
+                    } catch (error) {
+                        console.log("a problem L70");
+                    }
+                } else {
+                    try {
+                        document.getElementById(p).style.backgroundColor = "#ffffff";
+                    } catch (error) {
+                        console.log("a problem L75");
+                    }
+                }
+                pi += 1;
+            }
+        }
+    }
 
 function color(st) {
     if (st === "all") {
@@ -2232,7 +2286,7 @@ function closeForm (sss) {
     document.getElementById("popupForm").style.display = "none";
     willing_to_click2 = "";
     click(willing_to_click);
-
+    spawnpiece = "";
     willing_to_click = "";
 }
 
@@ -2242,6 +2296,8 @@ function openForm () {
 
 }
 
+function color_last_played () {
+}
 // End of game
 
 
