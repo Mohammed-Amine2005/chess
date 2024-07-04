@@ -1091,7 +1091,7 @@ function play() {
         if (hoster) {
             document.getElementById("score").innerHTML = "♔ Your Turn ♔";
         }else{
-            document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
+            document.getElementById("score").innerHTML = "♔".concat( get_opponent_name() ," 's Turn ♔");
         }
     }else{
         document.getElementById("score").innerHTML = "♔ White's Turn ♔";
@@ -2157,7 +2157,7 @@ function endgame() {
             if (!hoster) {
                 document.getElementById("score").innerHTML = "♔ You Win The Game ! ♔";
             }else{
-                document.getElementById("score").innerHTML = "♔".concat( opponent_name ," Wins The Game ! ♔");
+                document.getElementById("score").innerHTML = "♔".concat( get_opponent_name() ," Wins The Game ! ♔");
             }        
         }else{
             document.getElementById("score").innerHTML = "Black Wins The Game";
@@ -2169,7 +2169,7 @@ function endgame() {
             if (hoster) {
                 document.getElementById("score").innerHTML = "♔ You Win The Game ! ♔";
             }else{
-                document.getElementById("score").innerHTML = "♔".concat( opponent_name ," Wins The Game ! ♔");
+                document.getElementById("score").innerHTML = "♔".concat( get_opponent_name() ," Wins The Game ! ♔");
             }        
         }else{
             document.getElementById("score").innerHTML = "white wins , Replay";
@@ -2207,7 +2207,7 @@ function changeturn() { // to update in online case
             }else{
                 StopClock();
                 StartClock(0,5,3);
-                document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
+                document.getElementById("score").innerHTML = "♔".concat( get_opponent_name() ," 's Turn ♔");
                 // new Audio('./end.mp3').play() ( not concerned)
 
             }        
@@ -2247,7 +2247,7 @@ function changeturn() { // to update in online case
             }else{
                 StopClock();
                 StartClock(0,5,3);
-                document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
+                document.getElementById("score").innerHTML = "♔".concat( get_opponent_name() ," 's Turn ♔");
                 // new Audio('./end.mp3').play() ( not concerned)
 
             }
