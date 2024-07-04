@@ -334,7 +334,7 @@
         <button class="Replay" id="quit" onclick="quitgame()">♞ Quit ♟</button>
     </div>
     <div class="replaynow" id = "to remove 1"> 
-        <input class="name" type="text" id="username" maxlength="14" autofocus oninput="checkname()" placeholder="name :" onkeydown="return /[a-z_ ]/i.test(event.key)" ><br><br>
+        <input class="name" type="text" id="username" maxlength="14" autofocus oninput="checkname()" placeholder="name :" onkeydown="return /[a-z0-9_ ]/i.test(event.key)" ><br><br>
         <button class="log_name" id="log" onclick="validate_name()" >save name</button>
     </div>
     <div class="replaynow" id="to remove 2">  
@@ -631,25 +631,29 @@ var room = "";
 var input_name = "";
 var input_room = "";
 var lastsent = "";
+var join_code = "";
+var someone_joined = 0;
 initiate_game()
 function initiate_game() {
     quit = 0;
     hoster = 0;
+    join_code = "";
     to_be_played = 0;
     offlinegame = 0;
     spawnpiece = "";
     opponent_name = "";
+    someone_joined = 0;
     game_over = 0;
     can_start = 1;
     lastsent = "";
     room = "";
     input_room = "";
-    gameRef = database.ref('gameData');
-    gameRefjoin = database.ref('gameData');
-    gameRefplay = database.ref('gameData');
     gameRef.off();
     gameRefplay.off();
     gameRefjoin.off();
+    gameRef = database.ref('gameData');
+    gameRefjoin = database.ref('gameData');
+    gameRefplay = database.ref('gameData');
     document.getElementById("room").value = "" ;
     document.getElementById("Replay").innerHTML = "Replay";
     document.getElementById("Replay").style.color = ""
@@ -851,30 +855,14 @@ function validate_room() {
 
 function checkroomavailablity(room) { // joiner (can become hoster) (hoster config)
     // disable 2 player button
+    join_code = randomIntFromInterval(10000000000, 99999999999);
     document.getElementById("offline").disabled = true;
     document.getElementById("offline").classList.remove("offline");
     document.getElementById("offline").classList.add("offline_disabled");
     gameRef = database.ref( "gameData".concat("/",room) );
     gameRefjoin = database.ref( "gameData".concat("/",room) );
     gameRefplay = database.ref( "gameData".concat("/",room) );
-    database.ref( "gameData".concat("/",room,"/trying") ).on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data !== null && data !== name) {
-        // someone is trying to join
-        console.log("someone is trying to join");
-        room = "";
-        say = " ".concat(data," is trying to join, try again.");
-        initiate_game();
-        whyrestart(say);
-        say = "";
-        return;
-    }
-    setTimeout(() => {
-        database.ref( "gameData".concat("/",room,"/trying") ).off();
-    }, 500 );
-    });
-    gameRef.set({ trying : name });
-    gameRef.set({ join : name });
+    gameRef.set({ join : join_code });
     setTimeout(() => { 
         if (room !== "" && opponent_name === "") {
         //hosting
@@ -887,10 +875,10 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         document.getElementById("stophost").classList.add("offline");
         checkforjoin();
         }
-     }, 500 ); /* testing */ /* old settings : randomIntFromInterval(200, 500) */ 
+     }, 300 ); /* testing */ /* old settings : randomIntFromInterval(200, 500) */ 
     gameRef.on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data.join !== name) {
+    if (data.join !== join_code) {
       console.log("Received answer:", data.join);
       if (data.join === "no") {
         // room full
@@ -902,14 +890,24 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     document.getElementById("offline").disabled = true;
     document.getElementById("offline").classList.remove("offline");
     document.getElementById("offline").classList.add("offline_disabled");
+      }else if (data.join !== null && data.join.length > 10 ) {   
+        // someone trying too
+        console.log("someone is trying to join too");
+        initiate_game();
+        whyrestart("someone is trying to join too");
+        // disable 2 player button
+        document.getElementById("offline").disabled = true;
+        document.getElementById("offline").classList.remove("offline");
+        document.getElementById("offline").classList.add("offline_disabled");
 
       }else{
         // joined
-/* testing */     gameRef.set({ join : name });
+/* testing */ 
         console.log("room is now full");
         opponent_name = data.join ;
         document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
         gameRef.off()
+        gameRef.set({ join : name });
         //start game now
         //
         //pause sound if possible (cange for all #1231)
@@ -942,22 +940,27 @@ function checkforjoin() { // hoster
     const data = snapshot.val();
     if (data.join) {
       console.log("Received answer:", data.join);
-      if (data.join !== name && data.join !== "ok" && data.join !== "no") {
+      if (data.join !== name && data.join !== "no") {
         if (opponent_name === "") {
-            // accept player 2
-            console.log("accept player 2");
-            opponent_name = data.join ;
-            gameRefjoin.set({ join : name });
-            document.getElementById("score").innerHTML = opponent_name.concat(" "," joined the room");
-            // start game now
-            hoster = 1;
-            //
-            //pause sound if possible (cange for all #1231)
-            document.getElementById("join").play();
-            // new Audio('./join.mp3').play()
-            setTimeout(() => { 
-            start_online_party() 
-        }, 2500);
+                        // accept player 2
+                        if (someone_joined === 0) {
+                        someone_joined = 1;
+                        console.log("accept player 2");
+                        gameRefjoin.set({ join : name });
+
+                        // start game now
+                        hoster = 1;
+                        //
+                        //pause sound if possible (cange for all #1231)
+                        document.getElementById("join").play();
+                        // new Audio('./join.mp3').play()
+                        setTimeout(() => { 
+                        start_online_party() 
+                        }, 2500);}
+                        else{
+                            opponent_name = data.join ;
+                            document.getElementById("score").innerHTML = opponent_name.concat(" "," joined the room");
+                        }
         }else {
             // refuse player 2
             console.log("refuse player 2");
