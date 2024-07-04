@@ -774,6 +774,10 @@ function start_online_party() { // to figure out
     document.getElementById("offline").disabled = true;
     document.getElementById("offline").classList.remove("offline");
     document.getElementById("offline").classList.add("offline_disabled");
+        // disable stophost button
+    document.getElementById("stophost").disabled = true;
+    document.getElementById("stophost").classList.remove("offline");
+    document.getElementById("stophost").classList.add("offline_disabled");
         StopClock();
        //pause sound if possible (cange for all #1231)
         document.getElementById("quitsound").play(); 
@@ -875,6 +879,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     document.getElementById("offline").disabled = true;
     document.getElementById("offline").classList.remove("offline");
     document.getElementById("offline").classList.add("offline_disabled");
+    
     // setup connection
     gameRef = database.ref( "gameData".concat("/",room) );
     gameRefjoin = database.ref( "gameData".concat("/",room) );
@@ -908,6 +913,10 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         initiate_game();
         whyrestart(say);
         say = "";
+        // disable stophost button
+    document.getElementById("stophost").disabled = true;
+    document.getElementById("stophost").classList.remove("offline");
+    document.getElementById("stophost").classList.add("offline_disabled");
         // disable 2 player button
     document.getElementById("offline").disabled = true;
     document.getElementById("offline").classList.remove("offline");
