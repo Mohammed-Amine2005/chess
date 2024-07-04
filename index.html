@@ -779,9 +779,9 @@ if (pos.length === 4) {
     click(pos[2]+pos[3]);
 }else if (pos.length === 5) {
     click(pos[0]+pos[1]);
+    spawnpiece =pos[4];
     click(pos[2]+pos[3]);
-    closeForm(pos[4]);
-    spawnpiece = "";
+    closeForm("");
 }
 willing_to_click2 = "wait";
 setTimeout(() => { willing_to_click2 = "";}, 500);
@@ -798,8 +798,8 @@ function clicking(pos) {  /*to work out : feature to add : who starts as white *
         if ( (hoster && !blackturn)  ||  (!hoster && blackturn)  ) {
             click(pos);
             if (  (hoster && blackturn)  ||  (!hoster &&  !blackturn)  ) {
-                console.log("sending move: ", lastclick + clicked + spawnpiece );
-                sendmove(lastclick + clicked + spawnpiece );
+                console.log("sending move: ", lastclick + clicked );
+                sendmove(lastclick + clicked);
                 spawnpiece = "";
             }
         }
@@ -847,6 +847,10 @@ function validate_room() {
 }
 
 function checkroomavailablity(room) { // joiner (can become hoster) (hoster config)
+    // disable 2 player button
+    document.getElementById("offline").disabled = true;
+    document.getElementById("offline").classList.remove("offline");
+    document.getElementById("offline").classList.add("offline_disabled");
     gameRef = database.ref( "gameData".concat("/",room) );
     gameRefjoin = database.ref( "gameData".concat("/",room) );
     gameRefplay = database.ref( "gameData".concat("/",room) );
@@ -861,10 +865,6 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         document.getElementById("stophost").disabled = false;
         document.getElementById("stophost").classList.remove("offline_disabled");
         document.getElementById("stophost").classList.add("offline");
-        // disable 2 player button
-        document.getElementById("offline").disabled = true;
-        document.getElementById("offline").classList.remove("offline");
-        document.getElementById("offline").classList.add("offline_disabled");
         checkforjoin();
         }
      }, randomIntFromInterval( 700 , 1200 ) );
@@ -1765,12 +1765,20 @@ function click(pos) {
 //                document.getElementById(lastclick).innerHTML = "";
                 if (spawnpiece === "1" ) {
                     document.getElementById(lastclick).innerHTML = "♛";
+                    console.log("sending move: ", lastclick + clicked + "1" );
+                    sendmove(lastclick + clicked + "1" );
                 }else if (spawnpiece === "2") {
                     document.getElementById(lastclick).innerHTML = "♝";
+                    console.log("sending move: ", lastclick + clicked + "2" );
+                    sendmove(lastclick + clicked + "2" );
                 }else if (spawnpiece === "3") {
                     document.getElementById(lastclick).innerHTML = "♞";
+                    console.log("sending move: ", lastclick + clicked + "3" );
+                    sendmove(lastclick + clicked + "3" );
                 }else if (spawnpiece === "4") { 
                     document.getElementById(lastclick).innerHTML = "♜";
+                    console.log("sending move: ", lastclick + clicked + "4" );
+                    sendmove(lastclick + clicked + "4" );
                 }
                 if (offline_game === 1) {
                 spawnpiece = "";
@@ -1781,12 +1789,20 @@ function click(pos) {
 //                document.getElementById(lastclick).innerHTML = "";
                 if (spawnpiece === "1" ) {
                     document.getElementById(lastclick).innerHTML = "♕";
+                    console.log("sending move: ", lastclick + clicked + "1" );
+                    sendmove(lastclick + clicked + "1" );
                 }else if (spawnpiece === "2") {
                     document.getElementById(lastclick).innerHTML = "♗";
+                    console.log("sending move: ", lastclick + clicked + "2" );
+                    sendmove(lastclick + clicked + "2" );
                 }else if (spawnpiece === "3") {
                     document.getElementById(lastclick).innerHTML = "♘";
+                    console.log("sending move: ", lastclick + clicked + "3" );
+                    sendmove(lastclick + clicked + "3" );
                 }else if (spawnpiece === "4") { 
                     document.getElementById(lastclick).innerHTML = "♖";
+                    console.log("sending move: ", lastclick + clicked + "4" );
+                    sendmove(lastclick + clicked + "4" );
                 }
                 if (offline_game === 1) {
                 spawnpiece = "";
@@ -2187,7 +2203,7 @@ function closeForm (sss) {
     document.getElementById("score").style = "display:block";
     document.getElementById("popupForm").style.display = "none";
     willing_to_click2 = "";
-    clicking(willing_to_click);
+    click(willing_to_click);
 
     willing_to_click = "";
 }
