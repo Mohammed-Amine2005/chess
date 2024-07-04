@@ -930,6 +930,10 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
             gameRef.set({ join : name }); // for joining simultaneously
         }, 350);
         document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
+        // disable stophosting button
+        document.getElementById("stophost").disabled = true;
+        document.getElementById("stophost").classList.remove("offline");
+        document.getElementById("stophost").classList.add("offline_disabled");
         gameRef.off()
         //start game now
         //
@@ -971,6 +975,9 @@ function checkforjoin() { // hoster
             opponent_name = data.join ;
             gameRefjoin.set({ join : name });
             document.getElementById("score").innerHTML = opponent_name.concat(" "," joined the room");
+            document.getElementById("stophost").disabled = true;
+            document.getElementById("stophost").classList.remove("offline");
+            document.getElementById("stophost").classList.add("offline_disabled");
             // start game now
             hoster = 1;
             //
