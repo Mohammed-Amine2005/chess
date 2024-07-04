@@ -779,9 +779,8 @@ if (pos.length === 4) {
     click(pos[2]+pos[3]);
 }else if (pos.length === 5) {
     click(pos[0]+pos[1]);
-    spawnpiece =pos[4];
     click(pos[2]+pos[3]);
-    closeForm("");
+    closeForm(pos[4]);
 }
 willing_to_click2 = "wait";
 setTimeout(() => { willing_to_click2 = "";}, 500);
@@ -867,7 +866,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         document.getElementById("stophost").classList.add("offline");
         checkforjoin();
         }
-     }, randomIntFromInterval( 700 , 1200 ) );
+     }, 300 ); /* testing */ /* old settings : randomIntFromInterval(200, 500) */ 
     gameRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (data.join !== name) {
@@ -881,6 +880,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
 
       }else{
         // joined
+/* testing */     gameRef.set({ join : name });
         console.log("room is now full");
         opponent_name = data.join ;
         document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
