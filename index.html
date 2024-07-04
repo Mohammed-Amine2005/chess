@@ -334,11 +334,11 @@
         <button class="Replay" id="quit" onclick="quitgame()">♞ Quit ♟</button>
     </div>
     <div class="replaynow" id = "to remove 1"> 
-        <input class="name" type="text" id="username" maxlength="14" autofocus oninput="checkname()" placeholder="name :" onkeydown="return /[a-z_ ]/i.test(event.key)" ><br><br>
+        <input class="name" type="text" id="username" maxlength="14" autofocus oninput="checkname()" placeholder="name :" onkeydown="return /[a-z0-9_ ]/i.test(event.key)" onselectstart="return false" onpaste="return false;" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off ><br><br>
         <button class="log_name" id="log" onclick="validate_name()" >save name</button>
     </div>
     <div class="replaynow" id="to remove 2">  
-        <input class="room" type="text" id="room" maxlength="10" placeholder="room ID :" oninput=" checkroom()" onkeydown="return /[a-z0-9_ -]/i.test(event.key)" ><br><br>
+        <input class="room" type="text" id="room" maxlength="10" placeholder="room ID :" oninput=" checkroom()" onkeydown="return /[a-z0-9_ -]/i.test(event.key)" onselectstart="return false" onpaste="return false;" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off ><br><br>
         <button class="log_name" id="join room"  onclick="validate_room()">♔ Join ♔</button>
     </div>
 
@@ -926,10 +926,11 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
         // joined
         console.log("room is now full");
         opponent_name = data.join ;
+        get_opponent_name();
         setTimeout(() => {
-            gameRef.set({ join : name }); // for joining simultaneously
+            gameRef.set({ join : get_name() }); // for joining simultaneously
         }, 350);
-        document.getElementById("score").innerHTML = "room hosted by".concat(" ",opponent_name);
+        document.getElementById("score").innerHTML = "room hosted by".concat(" ",get_opponent_name());
         // disable stophosting button
         document.getElementById("stophost").disabled = true;
         document.getElementById("stophost").classList.remove("offline");
@@ -946,7 +947,7 @@ function checkroomavailablity(room) { // joiner (can become hoster) (hoster conf
     }
     }});
 // send my name
-gameRef.set({ join : name });}
+gameRef.set({ join : get_name() });}
 
 function randomIntFromInterval(min, max) { // min and max included 
   return Math.floor(Math.random() * (max - min + 1) + min);}
@@ -974,7 +975,7 @@ function checkforjoin() { // hoster
             console.log("accept player 2");
             opponent_name = data.join ;
             gameRefjoin.set({ join : name });
-            document.getElementById("score").innerHTML = opponent_name.concat(" "," joined the room");
+            document.getElementById("score").innerHTML = get_opponent_name().concat(" "," joined the room");
             document.getElementById("stophost").disabled = true;
             document.getElementById("stophost").classList.remove("offline");
             document.getElementById("stophost").classList.add("offline_disabled");
@@ -1004,10 +1005,15 @@ function start_new_game(stat) {
     } else if (stat === 1) {
         // enable room button
         can_start = 1;
-        document.getElementById("join room").disabled = false;
-        document.getElementById("join room").classList.remove("log_name_disabled");
-        document.getElementById("join room").classList.add("log_name");
     }
+}
+
+function get_name() {// translate name to id
+    return name.concat("#",randomIntFromInterval(10000,99999));
+}
+
+function get_opponent_name() {//exract name from id
+    return opponent_name.slice(0,opponent_name.lastIndexOf("#"));
 }
 
 function whattoput() {
