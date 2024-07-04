@@ -487,13 +487,13 @@
         var timerApp;
         var timeron = false;
         var time = "";
-        function StartClock() // update timer's start time (to use)
+        function StartClock(h,m,s) // update timer's start time (to use)
         {
             if (!timeron){
             timeron = true;
-            inputHour = Number(0);
-            inputMinute = Number(5); // to set 5 mn
-            inputSecond = Number(0);
+            inputHour = Number(h);
+            inputMinute = Number(m); // to set 5 mn
+            inputSecond = Number(s);
         /* use (   document.getElementById("inputMinute").value   ) in Number()  */
             updatetime();
             timerApp = setInterval(myClock, 1000);
@@ -746,8 +746,14 @@ function start_online_party() { // to figure out
     document.getElementById("Replay").classList.remove("Replay_disabled");
     document.getElementById("Replay").classList.add("Replay");
     document.getElementById("Replay").style.color = "#3B3EFF"
-    StopClock();
-    StartClock();
+    if (hoster) {
+        StopClock();
+        StartClock(0,5,0);
+    }else{
+        StopClock();
+        StartClock(0,5,3);
+    }
+
 
     //listening for moves
     gameRefplay.on('value', (snapshot) => {
@@ -2104,19 +2110,13 @@ function changeturn() { // to update in online case
             // online game
             if (!hoster) {
                 StopClock();
-                inputHour = 0;
-                inputMinute = 5;
-                inputSecond = 0;
-                StartClock();
+                StartClock(0,5,0);
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
                     // new Audio('./start.mp3').play() (not concerned)
 
             }else{
                 StopClock();
-                inputHour = 0;
-                inputMinute = 5;
-                inputSecond = 3;
-                StartClock();
+                StartClock(0,5,3);
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
                 // new Audio('./end.mp3').play() ( not concerned)
 
@@ -2151,18 +2151,12 @@ function changeturn() { // to update in online case
             // online game
             if (hoster) {
                 StopClock();
-                inputHour = 0;
-                inputMinute = 5;
-                inputSecond = 0;
-                StartClock();
+                StartClock(0,5,0);
                 document.getElementById("score").innerHTML = "♔ Your Turn ♔";
                 // new Audio('./start.mp3').play() ( not concerned)
             }else{
                 StopClock();
-                inputHour = 0;
-                inputMinute = 5;
-                inputSecond = 3;
-                StartClock();
+                StartClock(0,5,3);
                 document.getElementById("score").innerHTML = "♔".concat( opponent_name ," 's Turn ♔");
                 // new Audio('./end.mp3').play() ( not concerned)
 
